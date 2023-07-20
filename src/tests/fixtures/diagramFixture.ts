@@ -27,6 +27,7 @@ export const diagramFactory = ({
     { ...ellipseFixture, ...elementOverrides },
     { ...rectangleFixture, ...elementOverrides },
   ],
+  page: null,
   ...overrides,
 });
 

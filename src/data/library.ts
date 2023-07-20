@@ -154,9 +154,10 @@ class Library {
     return this.setLibrary(() => {
       return new Promise<LibraryItems>(async (resolve, reject) => {
         try {
-          const source = await (typeof libraryItems === "function"
-            ? libraryItems(this.lastLibraryItems)
-            : libraryItems);
+          const source = libraryItems as any;
+          // await (typeof libraryItems === "function"
+          //   ? libraryItems(this.lastLibraryItems)
+          //   : libraryItems);
 
           let nextItems;
 

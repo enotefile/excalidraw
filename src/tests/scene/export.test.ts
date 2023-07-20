@@ -24,6 +24,7 @@ describe("exportToSvg", () => {
   it("with default arguments", async () => {
     const svgElement = await exportUtils.exportToSvg(
       ELEMENTS,
+      null,
       DEFAULT_OPTIONS,
       null,
     );
@@ -36,6 +37,7 @@ describe("exportToSvg", () => {
 
     const svgElement = await exportUtils.exportToSvg(
       ELEMENTS,
+      null,
       {
         ...DEFAULT_OPTIONS,
         exportBackground: true,
@@ -53,6 +55,7 @@ describe("exportToSvg", () => {
   it("with dark mode", async () => {
     const svgElement = await exportUtils.exportToSvg(
       ELEMENTS,
+      null,
       {
         ...DEFAULT_OPTIONS,
         exportWithDarkMode: true,
@@ -68,6 +71,7 @@ describe("exportToSvg", () => {
   it("with exportPadding", async () => {
     const svgElement = await exportUtils.exportToSvg(
       ELEMENTS,
+      null,
       {
         ...DEFAULT_OPTIONS,
         exportPadding: 0,
@@ -88,6 +92,7 @@ describe("exportToSvg", () => {
 
     const svgElement = await exportUtils.exportToSvg(
       ELEMENTS,
+      null,
       {
         ...DEFAULT_OPTIONS,
         exportPadding: 0,
@@ -109,6 +114,7 @@ describe("exportToSvg", () => {
   it("with exportEmbedScene", async () => {
     const svgElement = await exportUtils.exportToSvg(
       ELEMENTS,
+      null,
       {
         ...DEFAULT_OPTIONS,
         exportEmbedScene: true,
@@ -121,6 +127,7 @@ describe("exportToSvg", () => {
   it("with elements that have a link", async () => {
     const svgElement = await exportUtils.exportToSvg(
       [rectangleWithLinkFixture],
+      null,
       DEFAULT_OPTIONS,
       null,
     );
