@@ -215,6 +215,7 @@ const initializeScene = async (opts: {
       targetElements: localDataState.elements,
       appState,
       fitToViewport: true,
+      viewportZoomFactor: 1,
     }).appState;
   }
 
