@@ -1070,6 +1070,10 @@ class App extends React.Component<AppProps, AppState> {
           editingElement = null;
         }
 
+        // using Object.assign instead of spread to fool TS 4.2.2+ into
+        // regarding the resulting type as not containing undefined
+        // (which the following expression will never contain)
+
         const newState = Object.assign(actionResult.appState || {}, {
           // NOTE this will prevent opening context menu using an action
           // or programmatically from the host, so it will need to be
