@@ -332,6 +332,10 @@ import { actionWrapTextInContainer } from "../actions/actionBoundText";
 import BraveMeasureTextError from "./BraveMeasureTextError";
 import { activeEyeDropperAtom } from "./EyeDropper";
 import { isSidebarDockedAtom } from "./Sidebar/Sidebar";
+import {
+  isPointerOutsideCanvas,
+  shouldPreventPanOrZoom,
+} from "./customization";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -1066,24 +1070,24 @@ class App extends React.Component<AppProps, AppState> {
           editingElement = null;
         }
 
+        const newState = Object.assign(actionResult.appState || {}, {
+          // NOTE this will prevent opening context menu using an action
+          // or programmatically from the host, so it will need to be
+          // rewritten later
+          contextMenu: null,
+          editingElement,
+          viewModeEnabled,
+          zenModeEnabled,
+          gridSize,
+          theme,
+          name,
+          errorMessage,
+        });
+
         this.setState(
           (state) => {
             return adjustAppStateForCanvasSize(
-              {
-                ...state,
-                ...(actionResult.appState || {}),
-                // NOTE this will prevent opening context menu using an action
-                // or programmatically from the host, so it will need to be
-                // rewritten later
-                contextMenu: null,
-                editingElement,
-                viewModeEnabled,
-                zenModeEnabled,
-                gridSize,
-                theme,
-                name,
-                errorMessage,
-              },
+              newState as AppState,
               this.props.defaultCanvasSize,
             );
           },
@@ -1452,7 +1456,7 @@ class App extends React.Component<AppProps, AppState> {
       this.fonts.onFontsLoaded(loadedFontFaces);
     });
 
-    if (!this.shouldPreventPanOrZoom()) {
+    if (!shouldPreventPanOrZoom(this.state.canvasSize)) {
       // Safari-only desktop pinch zoom
       document.addEventListener(
         EVENT.GESTURE_START,
@@ -3489,7 +3493,7 @@ class App extends React.Component<AppProps, AppState> {
       initialScale &&
       gesture.initialDistance
     ) {
-      if (this.shouldPreventPanOrZoom()) {
+      if (shouldPreventPanOrZoom(this.state.canvasSize)) {
         return;
       }
 
@@ -3703,7 +3707,12 @@ class App extends React.Component<AppProps, AppState> {
       return;
     }
 
-    if (this.isPointerOutsideCanvas({ x: scenePointerX, y: scenePointerY })) {
+    if (
+      isPointerOutsideCanvas(this.state.canvasSize, {
+        x: scenePointerX,
+        y: scenePointerY,
+      })
+    ) {
       return;
     }
 
@@ -3785,7 +3794,7 @@ class App extends React.Component<AppProps, AppState> {
           isTextElement(hitElement) ? CURSOR_TYPE.TEXT : CURSOR_TYPE.CROSSHAIR,
         );
       } else if (this.state.viewModeEnabled) {
-        if (this.shouldPreventPanOrZoom()) {
+        if (shouldPreventPanOrZoom(this.state.canvasSize)) {
           setCursor(this.canvas, CURSOR_TYPE.AUTO);
         } else {
           setCursor(this.canvas, CURSOR_TYPE.GRAB);
@@ -4139,7 +4148,7 @@ class App extends React.Component<AppProps, AppState> {
         this.state.activeTool.type === "selection" ||
         this.state.activeTool.type === "text" ||
         this.state.activeTool.type === "image") &&
-      !this.isPointerOutsideCanvas(pointerDownState.origin);
+      !isPointerOutsideCanvas(this.state.canvasSize, pointerDownState.origin);
 
     if (!allowOnPointerDown) {
       return;
@@ -4311,7 +4320,7 @@ class App extends React.Component<AppProps, AppState> {
           this.state.viewModeEnabled)
       ) ||
       isTextElement(this.state.editingElement) ||
-      this.shouldPreventPanOrZoom()
+      shouldPreventPanOrZoom(this.state.canvasSize)
     ) {
       return false;
     }
@@ -4527,18 +4536,6 @@ class App extends React.Component<AppProps, AppState> {
     }
   };
 
-  private isPointerOutsideCanvas({ x, y }: { x: number; y: number }): boolean {
-    if (this.state.canvasSize.mode !== "fixed") {
-      return false;
-    }
-    return (
-      x < 0 ||
-      x > this.state.canvasSize.width ||
-      y < 0 ||
-      y > this.state.canvasSize.height
-    );
-  }
-
   /**
    * @returns whether the pointer event has been completely handled
    */
@@ -4546,14 +4543,19 @@ class App extends React.Component<AppProps, AppState> {
     event: React.PointerEvent<HTMLElement>,
     pointerDownState: PointerDownState,
   ): boolean => {
-    if (this.state.viewModeEnabled && this.shouldPreventPanOrZoom()) {
+    if (
+      this.state.viewModeEnabled &&
+      shouldPreventPanOrZoom(this.state.canvasSize)
+    ) {
       return true;
     }
 
     if (this.state.activeTool.type === "selection") {
       const elements = this.scene.getNonDeletedElements();
 
-      if (this.isPointerOutsideCanvas(pointerDownState.origin)) {
+      if (
+        isPointerOutsideCanvas(this.state.canvasSize, pointerDownState.origin)
+      ) {
         this.clearSelection(null);
         return false;
       }
@@ -7447,15 +7449,10 @@ class App extends React.Component<AppProps, AppState> {
     ];
   };
 
-  private shouldPreventPanOrZoom(): boolean {
-    const { canvasSize: cs } = this.state;
-    return cs.mode === "fixed" && !!cs.autoZoom;
-  }
-
   private handleWheel = withBatchedUpdates(
     (event: WheelEvent | React.WheelEvent<HTMLDivElement>) => {
       event.preventDefault();
-      if (isPanning || this.shouldPreventPanOrZoom()) {
+      if (isPanning || shouldPreventPanOrZoom(this.state.canvasSize)) {
         return;
       }
 
