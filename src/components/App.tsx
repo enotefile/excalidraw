@@ -7,7 +7,6 @@ import clsx from "clsx";
 import { nanoid } from "nanoid";
 
 import {
-  actionAddToLibrary,
   actionBringForward,
   actionBringToFront,
   actionCopy,
@@ -32,8 +31,6 @@ import {
   actionUnbindText,
   actionBindText,
   actionUngroup,
-  actionLink,
-  actionToggleElementLock,
   actionToggleLinearEditor,
   actionToggleObjectsSnapMode,
 } from "../actions";
@@ -81,7 +78,6 @@ import {
   TAP_TWICE_TIMEOUT,
   TEXT_TO_CENTER_SNAP_THRESHOLD,
   THEME,
-  THEME_FILTER,
   TOUCH_CTX_MENU_TIMEOUT,
   VERTICAL_ALIGN,
   YOUTUBE_STATES,
@@ -373,6 +369,8 @@ import {
   resetCursor,
   setCursorForShape,
 } from "../cursor";
+import { isPointerOutsideCanvas } from "./customization";
+import { adjustAppStateForCanvasSize } from "../canvas-size";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -515,20 +513,26 @@ class App extends React.Component<AppProps, AppState> {
       objectsSnapModeEnabled = false,
       theme = defaultAppState.theme,
       name = defaultAppState.name,
+      defaultCanvasSize,
     } = props;
-    this.state = {
-      ...defaultAppState,
-      theme,
-      isLoading: true,
-      ...this.getCanvasOffsets(),
-      viewModeEnabled,
-      zenModeEnabled,
-      objectsSnapModeEnabled,
-      gridSize: gridModeEnabled ? GRID_SIZE : null,
-      name,
-      width: window.innerWidth,
-      height: window.innerHeight,
-    };
+
+    this.state = adjustAppStateForCanvasSize(
+      {
+        ...defaultAppState,
+        theme,
+        isLoading: true,
+        ...this.getCanvasOffsets(),
+        viewModeEnabled,
+        zenModeEnabled,
+        objectsSnapModeEnabled,
+        gridSize: gridModeEnabled ? GRID_SIZE : null,
+        name,
+        width: window.innerWidth,
+        height: window.innerHeight,
+      },
+      true,
+      defaultCanvasSize,
+    );
 
     this.id = nanoid();
 
@@ -983,148 +987,151 @@ class App extends React.Component<AppProps, AppState> {
   };
 
   private renderFrameNames = () => {
-    if (!this.state.frameRendering.enabled || !this.state.frameRendering.name) {
-      return null;
-    }
+    // Hide the frame name
+    return null;
 
-    const isDarkTheme = this.state.theme === "dark";
+    // if (!this.state.frameRendering.enabled || !this.state.frameRendering.name) {
+    //   return null;
+    // }
 
-    return this.scene.getNonDeletedFrames().map((f, index) => {
-      if (
-        !isElementInViewport(
-          f,
-          this.canvas.width / window.devicePixelRatio,
-          this.canvas.height / window.devicePixelRatio,
-          {
-            offsetLeft: this.state.offsetLeft,
-            offsetTop: this.state.offsetTop,
-            scrollX: this.state.scrollX,
-            scrollY: this.state.scrollY,
-            zoom: this.state.zoom,
-          },
-        )
-      ) {
-        // if frame not visible, don't render its name
-        return null;
-      }
+    // const isDarkTheme = this.state.theme === "dark";
 
-      const { x: x1, y: y1 } = sceneCoordsToViewportCoords(
-        { sceneX: f.x, sceneY: f.y },
-        this.state,
-      );
+    // return this.scene.getNonDeletedFrames().map((f, index) => {
+    //   if (
+    //     !isElementInViewport(
+    //       f,
+    //       this.canvas.width / window.devicePixelRatio,
+    //       this.canvas.height / window.devicePixelRatio,
+    //       {
+    //         offsetLeft: this.state.offsetLeft,
+    //         offsetTop: this.state.offsetTop,
+    //         scrollX: this.state.scrollX,
+    //         scrollY: this.state.scrollY,
+    //         zoom: this.state.zoom,
+    //       },
+    //     )
+    //   ) {
+    //     // if frame not visible, don't render its name
+    //     return null;
+    //   }
 
-      const { x: x2 } = sceneCoordsToViewportCoords(
-        { sceneX: f.x + f.width, sceneY: f.y + f.height },
-        this.state,
-      );
+    //   const { x: x1, y: y1 } = sceneCoordsToViewportCoords(
+    //     { sceneX: f.x, sceneY: f.y },
+    //     this.state,
+    //   );
 
-      const FRAME_NAME_GAP = 20;
-      const FRAME_NAME_EDIT_PADDING = 6;
+    //   const { x: x2 } = sceneCoordsToViewportCoords(
+    //     { sceneX: f.x + f.width, sceneY: f.y + f.height },
+    //     this.state,
+    //   );
 
-      const reset = () => {
-        if (f.name?.trim() === "") {
-          mutateElement(f, { name: null });
-        }
+    //   const FRAME_NAME_GAP = 20;
+    //   const FRAME_NAME_EDIT_PADDING = 6;
 
-        this.setState({ editingFrame: null });
-      };
+    //   const reset = () => {
+    //     if (f.name?.trim() === "") {
+    //       mutateElement(f, { name: null });
+    //     }
 
-      let frameNameJSX;
+    //     this.setState({ editingFrame: null });
+    //   };
 
-      if (f.id === this.state.editingFrame) {
-        const frameNameInEdit = f.name == null ? `Frame ${index + 1}` : f.name;
+    //   let frameNameJSX;
 
-        frameNameJSX = (
-          <input
-            autoFocus
-            value={frameNameInEdit}
-            onChange={(e) => {
-              mutateElement(f, {
-                name: e.target.value,
-              });
-            }}
-            onBlur={() => reset()}
-            onKeyDown={(event) => {
-              // for some inexplicable reason, `onBlur` triggered on ESC
-              // does not reset `state.editingFrame` despite being called,
-              // and we need to reset it here as well
-              if (event.key === KEYS.ESCAPE || event.key === KEYS.ENTER) {
-                reset();
-              }
-            }}
-            style={{
-              background: this.state.viewBackgroundColor,
-              filter: isDarkTheme ? THEME_FILTER : "none",
-              zIndex: 2,
-              border: "none",
-              display: "block",
-              padding: `${FRAME_NAME_EDIT_PADDING}px`,
-              borderRadius: 4,
-              boxShadow: "inset 0 0 0 1px var(--color-primary)",
-              fontFamily: "Assistant",
-              fontSize: "14px",
-              transform: `translateY(-${FRAME_NAME_EDIT_PADDING}px)`,
-              color: "var(--color-gray-80)",
-              overflow: "hidden",
-              maxWidth: `${Math.min(
-                x2 - x1 - FRAME_NAME_EDIT_PADDING,
-                document.body.clientWidth - x1 - FRAME_NAME_EDIT_PADDING,
-              )}px`,
-            }}
-            size={frameNameInEdit.length + 1 || 1}
-            dir="auto"
-            autoComplete="off"
-            autoCapitalize="off"
-            autoCorrect="off"
-          />
-        );
-      } else {
-        frameNameJSX =
-          f.name == null || f.name.trim() === ""
-            ? `Frame ${index + 1}`
-            : f.name.trim();
-      }
+    //   if (f.id === this.state.editingFrame) {
+    //     const frameNameInEdit = f.name == null ? `Frame ${index + 1}` : f.name;
 
-      return (
-        <div
-          id={this.getFrameNameDOMId(f)}
-          key={f.id}
-          style={{
-            position: "absolute",
-            top: `${y1 - FRAME_NAME_GAP - this.state.offsetTop}px`,
-            left: `${
-              x1 -
-              this.state.offsetLeft -
-              (this.state.editingFrame === f.id ? FRAME_NAME_EDIT_PADDING : 0)
-            }px`,
-            zIndex: 2,
-            fontSize: "14px",
-            color: isDarkTheme
-              ? "var(--color-gray-60)"
-              : "var(--color-gray-50)",
-            width: "max-content",
-            maxWidth: `${x2 - x1 + FRAME_NAME_EDIT_PADDING * 2}px`,
-            overflow: f.id === this.state.editingFrame ? "visible" : "hidden",
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-            cursor: CURSOR_TYPE.MOVE,
-            pointerEvents: this.state.viewModeEnabled
-              ? POINTER_EVENTS.disabled
-              : POINTER_EVENTS.enabled,
-          }}
-          onPointerDown={(event) => this.handleCanvasPointerDown(event)}
-          onWheel={(event) => this.handleWheel(event)}
-          onContextMenu={this.handleCanvasContextMenu}
-          onDoubleClick={() => {
-            this.setState({
-              editingFrame: f.id,
-            });
-          }}
-        >
-          {frameNameJSX}
-        </div>
-      );
-    });
+    //     frameNameJSX = (
+    //       <input
+    //         autoFocus
+    //         value={frameNameInEdit}
+    //         onChange={(e) => {
+    //           mutateElement(f, {
+    //             name: e.target.value,
+    //           });
+    //         }}
+    //         onBlur={() => reset()}
+    //         onKeyDown={(event) => {
+    //           // for some inexplicable reason, `onBlur` triggered on ESC
+    //           // does not reset `state.editingFrame` despite being called,
+    //           // and we need to reset it here as well
+    //           if (event.key === KEYS.ESCAPE || event.key === KEYS.ENTER) {
+    //             reset();
+    //           }
+    //         }}
+    //         style={{
+    //           background: this.state.viewBackgroundColor,
+    //           filter: isDarkTheme ? THEME_FILTER : "none",
+    //           zIndex: 2,
+    //           border: "none",
+    //           display: "block",
+    //           padding: `${FRAME_NAME_EDIT_PADDING}px`,
+    //           borderRadius: 4,
+    //           boxShadow: "inset 0 0 0 1px var(--color-primary)",
+    //           fontFamily: "Assistant",
+    //           fontSize: "14px",
+    //           transform: `translateY(-${FRAME_NAME_EDIT_PADDING}px)`,
+    //           color: "var(--color-gray-80)",
+    //           overflow: "hidden",
+    //           maxWidth: `${Math.min(
+    //             x2 - x1 - FRAME_NAME_EDIT_PADDING,
+    //             document.body.clientWidth - x1 - FRAME_NAME_EDIT_PADDING,
+    //           )}px`,
+    //         }}
+    //         size={frameNameInEdit.length + 1 || 1}
+    //         dir="auto"
+    //         autoComplete="off"
+    //         autoCapitalize="off"
+    //         autoCorrect="off"
+    //       />
+    //     );
+    //   } else {
+    //     frameNameJSX =
+    //       f.name == null || f.name.trim() === ""
+    //         ? `Frame ${index + 1}`
+    //         : f.name.trim();
+    //   }
+
+    //   return (
+    //     <div
+    //       id={this.getFrameNameDOMId(f)}
+    //       key={f.id}
+    //       style={{
+    //         position: "absolute",
+    //         top: `${y1 - FRAME_NAME_GAP - this.state.offsetTop}px`,
+    //         left: `${
+    //           x1 -
+    //           this.state.offsetLeft -
+    //           (this.state.editingFrame === f.id ? FRAME_NAME_EDIT_PADDING : 0)
+    //         }px`,
+    //         zIndex: 2,
+    //         fontSize: "14px",
+    //         color: isDarkTheme
+    //           ? "var(--color-gray-60)"
+    //           : "var(--color-gray-50)",
+    //         width: "max-content",
+    //         maxWidth: `${x2 - x1 + FRAME_NAME_EDIT_PADDING * 2}px`,
+    //         overflow: f.id === this.state.editingFrame ? "visible" : "hidden",
+    //         whiteSpace: "nowrap",
+    //         textOverflow: "ellipsis",
+    //         cursor: CURSOR_TYPE.MOVE,
+    //         pointerEvents: this.state.viewModeEnabled
+    //           ? POINTER_EVENTS.disabled
+    //           : POINTER_EVENTS.enabled,
+    //       }}
+    //       onPointerDown={(event) => this.handleCanvasPointerDown(event)}
+    //       onWheel={(event) => this.handleWheel(event)}
+    //       onContextMenu={this.handleCanvasContextMenu}
+    //       onDoubleClick={() => {
+    //         this.setState({
+    //           editingFrame: f.id,
+    //         });
+    //       }}
+    //     >
+    //       {frameNameJSX}
+    //     </div>
+    //   );
+    // });
   };
 
   public render() {
@@ -1151,6 +1158,8 @@ class App extends React.Component<AppProps, AppState> {
         className={clsx("excalidraw excalidraw-container", {
           "excalidraw--view-mode": this.state.viewModeEnabled,
           "excalidraw--mobile": this.device.isMobile,
+          "excalidraw--fixed-size-canvas":
+            this.state.canvasSize.mode === "fixed",
         })}
         style={{
           ["--ui-pointerEvents" as any]:
@@ -1265,6 +1274,7 @@ class App extends React.Component<AppProps, AppState> {
                             imageCache: this.imageCache,
                             isExporting: false,
                             renderGrid: true,
+                            canvasSize: this.state.canvasSize,
                           }}
                         />
                         <InteractiveCanvas
@@ -1465,24 +1475,33 @@ class App extends React.Component<AppProps, AppState> {
           editingElement = null;
         }
 
+        // using Object.assign instead of spread to fool TS 4.2.2+ into
+        // regarding the resulting type as not containing undefined
+        // (which the following expression will never contain)
+
+        const newState = Object.assign(actionResult.appState || {}, {
+          // NOTE this will prevent opening context menu using an action
+          // or programmatically from the host, so it will need to be
+          // rewritten later
+          contextMenu: null,
+          editingElement,
+          viewModeEnabled,
+          zenModeEnabled,
+          gridSize,
+          theme,
+          name,
+          errorMessage,
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+
         this.setState(
           (state) => {
-            // using Object.assign instead of spread to fool TS 4.2.2+ into
-            // regarding the resulting type as not containing undefined
-            // (which the following expression will never contain)
-            return Object.assign(actionResult.appState || {}, {
-              // NOTE this will prevent opening context menu using an action
-              // or programmatically from the host, so it will need to be
-              // rewritten later
-              contextMenu: null,
-              editingElement,
-              viewModeEnabled,
-              zenModeEnabled,
-              gridSize,
-              theme,
-              name,
-              errorMessage,
-            });
+            return adjustAppStateForCanvasSize(
+              newState as AppState,
+              false,
+              this.props.defaultCanvasSize,
+            );
           },
           () => {
             if (actionResult.syncHistory) {
@@ -1525,8 +1544,12 @@ class App extends React.Component<AppProps, AppState> {
       this.scene.replaceAllElements([]);
       this.setState((state) => ({
         ...getDefaultAppState(),
+        canvasSize: this.props.defaultCanvasSize
+          ? { mode: "fixed", ...this.props.defaultCanvasSize }
+          : { mode: "infinite" },
         isLoading: opts?.resetLoadingState ? false : state.isLoading,
         theme: this.state.theme,
+        zoom: this.state.zoom,
       }));
       this.resetHistory();
     },
@@ -1693,6 +1716,7 @@ class App extends React.Component<AppProps, AppState> {
         this.updateDOMRect();
       });
       this.resizeObserver?.observe(this.excalidrawContainerRef.current);
+      this.resizeObserver?.observe(window.document.body);
     } else if (window.matchMedia) {
       const mdScreenQuery = window.matchMedia(
         `(max-width: ${MQ_MAX_WIDTH_PORTRAIT}px), (max-height: ${MQ_MAX_HEIGHT_LANDSCAPE}px) and (max-width: ${MQ_MAX_WIDTH_LANDSCAPE}px)`,
@@ -1861,6 +1885,7 @@ class App extends React.Component<AppProps, AppState> {
       this.onGestureEnd as any,
       false,
     );
+
     if (this.state.viewModeEnabled) {
       return;
     }
@@ -4082,6 +4107,15 @@ class App extends React.Component<AppProps, AppState> {
       return;
     }
 
+    if (
+      isPointerOutsideCanvas(this.state.canvasSize, {
+        x: scenePointerX,
+        y: scenePointerY,
+      })
+    ) {
+      return;
+    }
+
     const elements = this.scene.getNonDeletedElements();
 
     const selectedElements = this.scene.getSelectedElements(this.state);
@@ -4532,11 +4566,12 @@ class App extends React.Component<AppProps, AppState> {
     }
 
     const allowOnPointerDown =
-      !this.state.penMode ||
-      event.pointerType !== "touch" ||
-      this.state.activeTool.type === "selection" ||
-      this.state.activeTool.type === "text" ||
-      this.state.activeTool.type === "image";
+      (!this.state.penMode ||
+        event.pointerType !== "touch" ||
+        this.state.activeTool.type === "selection" ||
+        this.state.activeTool.type === "text" ||
+        this.state.activeTool.type === "image") &&
+      !isPointerOutsideCanvas(this.state.canvasSize, pointerDownState.origin);
 
     if (!allowOnPointerDown) {
       return;
@@ -4977,8 +5012,20 @@ class App extends React.Component<AppProps, AppState> {
     event: React.PointerEvent<HTMLElement>,
     pointerDownState: PointerDownState,
   ): boolean => {
+    if (this.state.viewModeEnabled) {
+      return true;
+    }
+
     if (this.state.activeTool.type === "selection") {
       const elements = this.scene.getNonDeletedElements();
+
+      if (
+        isPointerOutsideCanvas(this.state.canvasSize, pointerDownState.origin)
+      ) {
+        this.clearSelection(null);
+        return false;
+      }
+
       const selectedElements = this.scene.getSelectedElements(this.state);
       if (selectedElements.length === 1 && !this.state.editingLinearElement) {
         const elementWithTransformHandleType =
@@ -8199,20 +8246,24 @@ class App extends React.Component<AppProps, AppState> {
       actionWrapTextInContainer,
       actionUngroup,
       CONTEXT_MENU_SEPARATOR,
-      actionAddToLibrary,
-      CONTEXT_MENU_SEPARATOR,
+      // actionAddToLibrary,
+      // CONTEXT_MENU_SEPARATOR,
+
       actionSendBackward,
       actionBringForward,
       actionSendToBack,
       actionBringToFront,
+
       CONTEXT_MENU_SEPARATOR,
       actionFlipHorizontal,
       actionFlipVertical,
+
       CONTEXT_MENU_SEPARATOR,
       actionToggleLinearEditor,
-      actionLink,
+      // actionLink,
       actionDuplicateSelection,
-      actionToggleElementLock,
+      // actionToggleElementLock,
+
       CONTEXT_MENU_SEPARATOR,
       actionDeleteSelected,
     ];
@@ -8369,12 +8420,17 @@ class App extends React.Component<AppProps, AppState> {
       }
 
       this.setState(
-        {
-          width,
-          height,
-          offsetLeft,
-          offsetTop,
-        },
+        adjustAppStateForCanvasSize(
+          {
+            ...this.state,
+            width,
+            height,
+            offsetLeft,
+            offsetTop,
+          },
+          true,
+          this.props.defaultCanvasSize,
+        ),
         () => {
           cb && cb();
         },

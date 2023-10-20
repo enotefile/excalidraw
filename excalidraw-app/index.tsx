@@ -21,11 +21,7 @@ import {
 } from "../src/element/types";
 import { useCallbackRefState } from "../src/hooks/useCallbackRefState";
 import { t } from "../src/i18n";
-import {
-  Excalidraw,
-  defaultLang,
-  LiveCollaborationTrigger,
-} from "../src/packages/excalidraw/index";
+import { Excalidraw, defaultLang } from "../src/packages/excalidraw/index";
 import {
   AppState,
   LibraryItems,
@@ -54,7 +50,6 @@ import Collab, {
   collabAPIAtom,
   collabDialogShownAtom,
   isCollaboratingAtom,
-  isOfflineAtom,
 } from "./collab/Collab";
 import {
   exportToBackend,
@@ -91,8 +86,7 @@ import {
 } from "../src/data/library";
 import { AppMainMenu } from "./components/AppMainMenu";
 import { AppWelcomeScreen } from "./components/AppWelcomeScreen";
-import { AppFooter } from "./components/AppFooter";
-import { atom, Provider, useAtom, useAtomValue } from "jotai";
+import { atom, Provider, useAtom } from "jotai";
 import { useAtomWithInitialValue } from "../src/jotai";
 import { appJotaiStore } from "./app-jotai";
 
@@ -102,6 +96,7 @@ import { ShareableLinkDialog } from "../src/components/ShareableLinkDialog";
 import { openConfirmModal } from "../src/components/OverwriteConfirm/OverwriteConfirmState";
 import { OverwriteConfirmDialog } from "../src/components/OverwriteConfirm/OverwriteConfirm";
 import Trans from "../src/components/Trans";
+import { fixCanvasSize } from "../src/element/fixCanvasSize";
 
 polyfill();
 
@@ -155,7 +150,8 @@ const initializeScene = async (opts: {
   );
   const externalUrlMatch = window.location.hash.match(/^#url=(.*)$/);
 
-  const localDataState = importFromLocalStorage();
+  let localDataState = importFromLocalStorage();
+  localDataState = fixCanvasSize(localDataState, opts.excalidrawAPI);
 
   let scene: RestoredDataState & {
     scrollToContent?: boolean;
@@ -662,7 +658,7 @@ const ExcalidrawWrapper = () => {
     localStorage.setItem(STORAGE_KEYS.LOCAL_STORAGE_LIBRARY, serializedItems);
   };
 
-  const isOffline = useAtomValue(isOfflineAtom);
+  // const isOffline = useAtomValue(isOfflineAtom);
 
   // browsers generally prevent infinite self-embedding, there are
   // cases where it still happens, and while we disallow self-embedding
@@ -685,7 +681,7 @@ const ExcalidrawWrapper = () => {
 
   return (
     <div
-      style={{ height: "100%" }}
+      style={{ height: "100%", width: "100%" }}
       className={clsx("excalidraw-app", {
         "is-collaborating": isCollaborating,
       })}
@@ -727,16 +723,17 @@ const ExcalidrawWrapper = () => {
         onLibraryChange={onLibraryChange}
         autoFocus={true}
         theme={theme}
+        defaultCanvasSize={{ width: 595, height: 842 }}
         renderTopRightUI={(isMobile) => {
-          if (isMobile || !collabAPI || isCollabDisabled) {
-            return null;
-          }
-          return (
-            <LiveCollaborationTrigger
-              isCollaborating={isCollaborating}
-              onSelect={() => setCollabDialogShown(true)}
-            />
-          );
+          // if (isMobile || !collabAPI || isCollabDisabled) {
+          return null;
+          // }
+          // return (
+          //   <LiveCollaborationTrigger
+          //     isCollaborating={isCollaborating}
+          //     onSelect={() => setCollabDialogShown(true)}
+          //   />
+          // );
         }}
       >
         <AppMainMenu
@@ -767,12 +764,12 @@ const ExcalidrawWrapper = () => {
             </OverwriteConfirmDialog.Action>
           )}
         </OverwriteConfirmDialog>
-        <AppFooter />
-        {isCollaborating && isOffline && (
+        {/* <AppFooter /> */}
+        {/* {isCollaborating && isOffline && (
           <div className="collab-offline-warning">
             {t("alerts.collabOfflineWarning")}
           </div>
-        )}
+        )} */}
         {latestShareableLink && (
           <ShareableLinkDialog
             link={latestShareableLink}

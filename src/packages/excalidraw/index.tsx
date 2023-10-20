@@ -44,6 +44,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
     children,
     validateEmbeddable,
     renderEmbeddable,
+    defaultCanvasSize,
   } = props;
 
   const canvasActions = props.UIOptions?.canvasActions;
@@ -119,6 +120,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
           onScrollChange={onScrollChange}
           validateEmbeddable={validateEmbeddable}
           renderEmbeddable={renderEmbeddable}
+          defaultCanvasSize={defaultCanvasSize}
         >
           {children}
         </App>
@@ -201,6 +203,7 @@ export {
   getSceneVersion,
   isInvisiblySmallElement,
   getNonDeletedElements,
+  fixCanvasSize,
 } from "../../element";
 export { defaultLang, useI18n, languages } from "../../i18n";
 export {
