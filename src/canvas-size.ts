@@ -19,11 +19,12 @@ export function adjustAppStateForCanvasSize(
       ? { mode: "fixed", ...defaultCanvasSize }
       : { mode: "infinite" };
 
-  if (canvasSize.mode !== "fixed") {
+  if (!isSizeChanged || canvasSize.mode !== "fixed") {
     return { ...state, canvasSize };
   }
 
-  const scroll = updateCanvasSize(state, canvasSize, isSizeChanged);
+  const { width: canvasWidth, height: canvasHeight } = canvasSize;
+  const scroll = updateCanvasSize(state, canvasWidth, canvasHeight);
 
   return {
     ...state,
@@ -56,15 +57,11 @@ export function adjustAppStateForCanvasSize(
 
 function updateCanvasSize(
   state: AppState,
-  canvasSize: CanvasSize,
-  isSizeChanged: boolean,
+  canvasWidth: number,
+  canvasHeight: number,
 ) {
-  if (canvasSize.mode !== "fixed" || !isSizeChanged) {
-    return {};
-  }
-
   const { width: viewportWidth, height: viewportHeight } = state;
-  let { width: canvasWidth, height: canvasHeight } = canvasSize;
+
   let scale = 0;
   if (viewportWidth > canvasWidth) {
     scale = Math.max(
