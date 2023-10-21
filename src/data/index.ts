@@ -67,17 +67,14 @@ export const exportCanvas = async (
     }
   }
 
-  const tempCanvas = await exportToCanvas(elements, appState, files, {
+  const tempCanvas = exportToCanvas(elements, appState, files, {
     exportBackground,
     viewBackgroundColor,
     exportPadding,
   });
-  tempCanvas.style.display = "none";
-  document.body.appendChild(tempCanvas);
 
   if (type === "png") {
     let blob = await canvasToBlob(tempCanvas);
-    tempCanvas.remove();
     if (appState.exportEmbedScene) {
       blob = await (
         await import(/* webpackChunkName: "image" */ "./image")
@@ -115,11 +112,8 @@ export const exportCanvas = async (
       } else {
         throw new Error(t("alerts.couldNotCopyToClipboard"));
       }
-    } finally {
-      tempCanvas.remove();
     }
   } else {
-    tempCanvas.remove();
     // shouldn't happen
     throw new Error("Unsupported export type");
   }

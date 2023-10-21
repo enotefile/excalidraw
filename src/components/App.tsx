@@ -44,7 +44,7 @@ import {
   isEraserActive,
   isHandToolActive,
 } from "../appState";
-import { parseClipboard } from "../clipboard";
+import { PastedMixedContent, parseClipboard } from "../clipboard";
 import {
   APP_NAME,
   CURSOR_TYPE,
@@ -271,6 +271,7 @@ import {
   generateIdFromFile,
   getDataURL,
   getFileFromEvent,
+  ImageURLToFile,
   isImageFileHandle,
   isSupportedImageFile,
   loadSceneOrLibraryFromBlob,
@@ -371,6 +372,7 @@ import {
 } from "../cursor";
 import { isPointerOutsideCanvas } from "./customization";
 import { adjustAppStateForCanvasSize } from "../canvas-size";
+import { Emitter } from "../emitter";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -502,6 +504,30 @@ class App extends React.Component<AppProps, AppState> {
 
   laserPathManager: LaserPathManager = new LaserPathManager(this);
 
+  onChangeEmitter = new Emitter<
+    [
+      elements: readonly ExcalidrawElement[],
+      appState: AppState,
+      files: BinaryFiles,
+    ]
+  >();
+
+  onPointerDownEmitter = new Emitter<
+    [
+      activeTool: AppState["activeTool"],
+      pointerDownState: PointerDownState,
+      event: React.PointerEvent<HTMLElement>,
+    ]
+  >();
+
+  onPointerUpEmitter = new Emitter<
+    [
+      activeTool: AppState["activeTool"],
+      pointerDownState: PointerDownState,
+      event: PointerEvent,
+    ]
+  >();
+
   constructor(props: AppProps) {
     super(props);
     const defaultAppState = getDefaultAppState();
@@ -571,6 +597,9 @@ class App extends React.Component<AppProps, AppState> {
         resetCursor: this.resetCursor,
         updateFrameRendering: this.updateFrameRendering,
         toggleSidebar: this.toggleSidebar,
+        onChange: (cb) => this.onChangeEmitter.on(cb),
+        onPointerDown: (cb) => this.onPointerDownEmitter.on(cb),
+        onPointerUp: (cb) => this.onPointerUpEmitter.on(cb),
       } as const;
       if (typeof excalidrawRef === "function") {
         excalidrawRef(api);
@@ -1197,7 +1226,6 @@ class App extends React.Component<AppProps, AppState> {
                       >
                         <LayerUI
                           canvas={this.canvas}
-                          interactiveCanvas={this.interactiveCanvas}
                           appState={this.state}
                           files={this.files}
                           setAppState={this.setAppState}
@@ -1214,7 +1242,6 @@ class App extends React.Component<AppProps, AppState> {
                             this.state.zenModeEnabled
                           }
                           UIOptions={this.props.UIOptions}
-                          onImageAction={this.onImageAction}
                           onExportImage={this.onExportImage}
                           renderWelcomeScreen={
                             !this.state.isLoading &&
@@ -1775,6 +1802,7 @@ class App extends React.Component<AppProps, AppState> {
     this.scene.destroy();
     this.library.destroy();
     this.laserPathManager.destroy();
+    this.onChangeEmitter.destroy();
     ShapeCache.destroy();
     SnapCache.destroy();
     clearTimeout(touchTimeout);
@@ -2060,6 +2088,11 @@ class App extends React.Component<AppProps, AppState> {
         this.state,
         this.files,
       );
+      this.onChangeEmitter.trigger(
+        this.scene.getElementsIncludingDeleted(),
+        this.state,
+        this.files,
+      );
     }
   }
 
@@ -2210,21 +2243,6 @@ class App extends React.Component<AppProps, AppState> {
         return;
       }
 
-      // must be called in the same frame (thus before any awaits) as the paste
-      // event else some browsers (FF...) will clear the clipboardData
-      // (something something security)
-      let file = event?.clipboardData?.files[0];
-
-      const data = await parseClipboard(event, isPlainPaste);
-      if (!file && data.text && !isPlainPaste) {
-        const string = data.text.trim();
-        if (string.startsWith("<svg") && string.endsWith("</svg>")) {
-          // ignore SVG validation/normalization which will be done during image
-          // initialization
-          file = SVGStringToFile(string);
-        }
-      }
-
       const { x: sceneX, y: sceneY } = viewportCoordsToSceneCoords(
         {
           clientX: this.lastViewportPosition.x,
@@ -2232,6 +2250,29 @@ class App extends React.Component<AppProps, AppState> {
         },
         this.state,
       );
+
+      // must be called in the same frame (thus before any awaits) as the paste
+      // event else some browsers (FF...) will clear the clipboardData
+      // (something something security)
+      let file = event?.clipboardData?.files[0];
+
+      const data = await parseClipboard(event, isPlainPaste);
+      if (!file && !isPlainPaste) {
+        if (data.mixedContent) {
+          return this.addElementsFromMixedContentPaste(data.mixedContent, {
+            isPlainPaste,
+            sceneX,
+            sceneY,
+          });
+        } else if (data.text) {
+          const string = data.text.trim();
+          if (string.startsWith("<svg") && string.endsWith("</svg>")) {
+            // ignore SVG validation/normalization which will be done during image
+            // initialization
+            file = SVGStringToFile(string);
+          }
+        }
+      }
 
       // prefer spreadsheet data over image file (MS Office/Libre Office)
       if (isSupportedImageFile(file) && !data.spreadsheet) {
@@ -2286,6 +2327,7 @@ class App extends React.Component<AppProps, AppState> {
         });
       } else if (data.text) {
         const maybeUrl = extractSrc(data.text);
+
         if (
           !isPlainPaste &&
           embeddableURLValidator(maybeUrl, this.props.validateEmbeddable) &&
@@ -2420,6 +2462,85 @@ class App extends React.Component<AppProps, AppState> {
     this.setActiveTool({ type: "selection" });
   };
 
+  // TODO rewrite this to paste both text & images at the same time if
+  // pasted data contains both
+  private async addElementsFromMixedContentPaste(
+    mixedContent: PastedMixedContent,
+    {
+      isPlainPaste,
+      sceneX,
+      sceneY,
+    }: { isPlainPaste: boolean; sceneX: number; sceneY: number },
+  ) {
+    if (
+      !isPlainPaste &&
+      mixedContent.some((node) => node.type === "imageUrl")
+    ) {
+      const imageURLs = mixedContent
+        .filter((node) => node.type === "imageUrl")
+        .map((node) => node.value);
+      const responses = await Promise.all(
+        imageURLs.map(async (url) => {
+          try {
+            return { file: await ImageURLToFile(url) };
+          } catch (error: any) {
+            return { errorMessage: error.message as string };
+          }
+        }),
+      );
+      let y = sceneY;
+      let firstImageYOffsetDone = false;
+      const nextSelectedIds: Record<ExcalidrawElement["id"], true> = {};
+      for (const response of responses) {
+        if (response.file) {
+          const imageElement = this.createImageElement({
+            sceneX,
+            sceneY: y,
+          });
+
+          const initializedImageElement = await this.insertImageElement(
+            imageElement,
+            response.file,
+          );
+          if (initializedImageElement) {
+            // vertically center first image in the batch
+            if (!firstImageYOffsetDone) {
+              firstImageYOffsetDone = true;
+              y -= initializedImageElement.height / 2;
+            }
+            // hack to reset the `y` coord because we vertically center during
+            // insertImageElement
+            mutateElement(initializedImageElement, { y }, false);
+
+            y = imageElement.y + imageElement.height + 25;
+
+            nextSelectedIds[imageElement.id] = true;
+          }
+        }
+      }
+
+      this.setState({
+        selectedElementIds: makeNextSelectedElementIds(
+          nextSelectedIds,
+          this.state,
+        ),
+      });
+
+      const error = responses.find((response) => !!response.errorMessage);
+      if (error && error.errorMessage) {
+        this.setState({ errorMessage: error.errorMessage });
+      }
+    } else {
+      const textNodes = mixedContent.filter((node) => node.type === "text");
+      if (textNodes.length) {
+        this.addTextFromPaste(
+          textNodes.map((node) => node.value).join("\n\n"),
+          isPlainPaste,
+        );
+      }
+    }
+  }
+
   private addTextFromPaste(text: string, isPlainPaste = false) {
     const { x, y } = viewportCoordsToSceneCoords(
       {
@@ -2458,18 +2579,12 @@ class App extends React.Component<AppProps, AppState> {
 
         const lineHeight = getDefaultLineHeight(textElementProps.fontFamily);
         if (text.length) {
-          const topLayerFrame = this.getTopLayerFrameAtSceneCoords({
-            x,
-            y: currentY,
-          });
-
           const element = newTextElement({
             ...textElementProps,
             x,
             y: currentY,
             text,
             lineHeight,
-            frameId: topLayerFrame ? topLayerFrame.id : null,
           });
           acc.push(element);
           currentY += element.height + LINE_GAP;
@@ -3159,11 +3274,16 @@ class App extends React.Component<AppProps, AppState> {
   });
 
   setActiveTool = (
-    tool:
-      | {
-          type: ToolType;
-        }
-      | { type: "custom"; customType: string },
+    tool: (
+      | (
+          | { type: Exclude<ToolType, "image"> }
+          | {
+              type: Extract<ToolType, "image">;
+              insertOnCanvasDirectly?: boolean;
+            }
+        )
+      | { type: "custom"; customType: string }
+    ) & { locked?: boolean },
   ) => {
     const nextActiveTool = updateActiveTool(this.state, tool);
     if (nextActiveTool.type === "hand") {
@@ -3178,7 +3298,10 @@ class App extends React.Component<AppProps, AppState> {
       this.setState({ suggestedBindings: [] });
     }
     if (nextActiveTool.type === "image") {
-      this.onImageAction();
+      this.onImageAction({
+        insertOnCanvasDirectly:
+          (tool.type === "image" && tool.insertOnCanvasDirectly) ?? false,
+      });
     }
 
     this.setState((prevState) => {
@@ -3476,6 +3599,11 @@ class App extends React.Component<AppProps, AppState> {
     return getElementsAtPosition(elements, (element) =>
       hitTest(element, this.state, this.frameNameBoundsCache, x, y),
     ).filter((element) => {
+      // arrows don't clip even if they're children of frames,
+      // so always allow hitbox regardless of beinging contained in frame
+      if (isArrowElement(element)) {
+        return true;
+      }
       // hitting a frame's element from outside the frame is not considered a hit
       const containingFrame = getContainingFrame(element);
       return containingFrame &&
@@ -4431,6 +4559,7 @@ class App extends React.Component<AppProps, AppState> {
       setCursor(this.interactiveCanvas, CURSOR_TYPE.AUTO);
     }
   }
+
   private handleCanvasPointerDown = (
     event: React.PointerEvent<HTMLElement>,
   ) => {
@@ -4621,7 +4750,7 @@ class App extends React.Component<AppProps, AppState> {
         pointerDownState,
       );
     } else if (this.state.activeTool.type === "custom") {
-      setCursor(this.interactiveCanvas, CURSOR_TYPE.AUTO);
+      setCursorForShape(this.interactiveCanvas, this.state);
     } else if (this.state.activeTool.type === "frame") {
       this.createFrameElementOnPointerDown(pointerDownState);
     } else if (this.state.activeTool.type === "laser") {
@@ -4640,6 +4769,11 @@ class App extends React.Component<AppProps, AppState> {
     }
 
     this.props?.onPointerDown?.(this.state.activeTool, pointerDownState);
+    this.onPointerDownEmitter.trigger(
+      this.state.activeTool,
+      pointerDownState,
+      event,
+    );
 
     const onPointerMove =
       this.onPointerMoveFromPointerDownHandler(pointerDownState);
@@ -6504,6 +6638,12 @@ class App extends React.Component<AppProps, AppState> {
         this.setState({ pendingImageElementId: null });
       }
 
+      this.onPointerUpEmitter.trigger(
+        this.state.activeTool,
+        pointerDownState,
+        childEvent,
+      );
+
       if (draggingElement?.type === "freedraw") {
         const pointerCoords = viewportCoordsToSceneCoords(
           childEvent,
@@ -7345,7 +7485,7 @@ class App extends React.Component<AppProps, AppState> {
     this.scene.addNewElement(imageElement);
 
     try {
-      await this.initializeImage({
+      return await this.initializeImage({
         imageFile,
         imageElement,
         showCursorImagePreview,
@@ -7358,6 +7498,7 @@ class App extends React.Component<AppProps, AppState> {
       this.setState({
         errorMessage: error.message || t("errors.imageInsertError"),
       });
+      return null;
     }
   };
 
@@ -7400,9 +7541,11 @@ class App extends React.Component<AppProps, AppState> {
     }
   };
 
-  private onImageAction = async (
-    { insertOnCanvasDirectly } = { insertOnCanvasDirectly: false },
-  ) => {
+  private onImageAction = async ({
+    insertOnCanvasDirectly,
+  }: {
+    insertOnCanvasDirectly: boolean;
+  }) => {
     try {
       const clientX = this.state.width / 2 + this.state.offsetLeft;
       const clientY = this.state.height / 2 + this.state.offsetTop;
