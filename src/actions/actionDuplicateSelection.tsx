@@ -87,6 +87,10 @@ const duplicateElements = (
   const oldIdToDuplicatedId = new Map();
 
   const duplicateAndOffsetElement = (element: ExcalidrawElement) => {
+    if (element.locked) {
+      return element;
+    }
+
     const newElement = duplicateElement(
       appState.editingGroupId,
       groupIdMap,
