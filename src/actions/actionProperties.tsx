@@ -393,17 +393,17 @@ export const actionChangeStrokeWidth = register({
         group="stroke-width"
         options={[
           {
-            value: 1,
+            value: 0.5,
             text: t("labels.thin"),
             icon: StrokeWidthBaseIcon,
           },
           {
-            value: 2,
+            value: 1,
             text: t("labels.bold"),
             icon: StrokeWidthBoldIcon,
           },
           {
-            value: 4,
+            value: 2,
             text: t("labels.extraBold"),
             icon: StrokeWidthExtraBoldIcon,
           },
@@ -570,25 +570,25 @@ export const actionChangeFontSize = register({
         group="font-size"
         options={[
           {
-            value: 16,
+            value: 14,
             text: t("labels.small"),
             icon: FontSizeSmallIcon,
             testId: "fontSize-small",
           },
           {
-            value: 20,
+            value: 18,
             text: t("labels.medium"),
             icon: FontSizeMediumIcon,
             testId: "fontSize-medium",
           },
           {
-            value: 28,
+            value: 22,
             text: t("labels.large"),
             icon: FontSizeLargeIcon,
             testId: "fontSize-large",
           },
           {
-            value: 36,
+            value: 26,
             text: t("labels.veryLarge"),
             icon: FontSizeExtraLargeIcon,
             testId: "fontSize-veryLarge",
