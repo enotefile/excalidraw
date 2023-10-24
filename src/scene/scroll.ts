@@ -49,7 +49,9 @@ export const calculateScrollCenter = (
   elements = getVisibleElements(elements);
 
   if (appState.fixedCanvasFrameElement) {
-    elements = [...elements, appState.fixedCanvasFrameElement];
+    elements = [appState.fixedCanvasFrameElement];
+  } else {
+    elements = [...elements];
   }
 
   if (!elements.length) {
