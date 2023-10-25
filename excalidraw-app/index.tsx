@@ -97,6 +97,7 @@ import { openConfirmModal } from "../src/components/OverwriteConfirm/OverwriteCo
 import { OverwriteConfirmDialog } from "../src/components/OverwriteConfirm/OverwriteConfirm";
 import Trans from "../src/components/Trans";
 import { fixCanvasSize } from "../src/element/fixCanvasSize";
+import { base64BackgroundImage } from "../src/element/base64BackgroundImage";
 
 polyfill();
 
@@ -151,7 +152,11 @@ const initializeScene = async (opts: {
   const externalUrlMatch = window.location.hash.match(/^#url=(.*)$/);
 
   let localDataState = importFromLocalStorage();
-  localDataState = fixCanvasSize(localDataState, opts.excalidrawAPI);
+  localDataState = fixCanvasSize(
+    opts.excalidrawAPI,
+    localDataState,
+    base64BackgroundImage,
+  );
 
   let scene: RestoredDataState & {
     scrollToContent?: boolean;
