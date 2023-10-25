@@ -1518,8 +1518,6 @@ class App extends React.Component<AppProps, AppState> {
           theme,
           name,
           errorMessage,
-          width: window.innerWidth,
-          height: window.innerHeight,
         });
 
         this.setState(
