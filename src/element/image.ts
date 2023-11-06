@@ -21,6 +21,7 @@ export const loadHTMLImageElement = (dataURL: DataURL) => {
     image.onerror = (error) => {
       reject(error);
     };
+    image.crossOrigin = "*";
     image.src = dataURL;
   });
 };
