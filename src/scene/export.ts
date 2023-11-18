@@ -258,11 +258,6 @@ const getCanvasSize = (
     );
   }
 
-  if (appState.canvasSize.mode === "fixed") {
-    const { width, height } = appState.canvasSize;
-    return [0, 0, width, height];
-  }
-
   const [minX, minY, maxX, maxY] = getCommonBounds(elements);
   const width =
     distance(minX, maxX) + (onlyExportingSingleFrame ? 0 : exportPadding * 2);

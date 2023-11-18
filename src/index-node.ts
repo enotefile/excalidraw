@@ -1,7 +1,7 @@
 import { exportToCanvas } from "./scene/export";
 import { getDefaultAppState } from "./appState";
 
-const { registerFont, createCanvas } = require("canvas");
+const { registerFont } = require("canvas");
 
 const elements = [
   {
@@ -72,7 +72,6 @@ const canvas = exportToCanvas(
     exportBackground: true,
     viewBackgroundColor: "#ffffff",
   },
-  createCanvas,
 );
 
 const fs = require("fs");

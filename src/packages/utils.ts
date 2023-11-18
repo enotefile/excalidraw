@@ -50,8 +50,6 @@ export const exportToCanvas = ({
   elements,
   appState,
   files,
-  maxWidthOrHeight,
-  getDimensions,
   exportPadding,
 }: ExportOpts & {
   exportPadding?: number;
@@ -67,43 +65,6 @@ export const exportToCanvas = ({
     { ...restoredAppState, offsetTop: 0, offsetLeft: 0, width: 0, height: 0 },
     files || {},
     { exportBackground, exportPadding, viewBackgroundColor },
-    (width: number, height: number) => {
-      const canvas = document.createElement("canvas");
-
-      if (maxWidthOrHeight) {
-        if (typeof getDimensions === "function") {
-          console.warn(
-            "`getDimensions()` is ignored when `maxWidthOrHeight` is supplied.",
-          );
-        }
-
-        const max = Math.max(width, height);
-
-        // if content is less then maxWidthOrHeight, fallback on supplied scale
-        const scale =
-          maxWidthOrHeight < max
-            ? maxWidthOrHeight / max
-            : appState?.exportScale ?? 1;
-
-        canvas.width = width * scale;
-        canvas.height = height * scale;
-
-        return {
-          canvas,
-          scale,
-        };
-      }
-
-      const ret = getDimensions?.(width, height) || { width, height };
-
-      canvas.width = ret.width;
-      canvas.height = ret.height;
-
-      return {
-        canvas,
-        scale: ret.scale ?? 1,
-      };
-    },
   );
 };
 

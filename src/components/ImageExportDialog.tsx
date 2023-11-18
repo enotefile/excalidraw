@@ -96,7 +96,6 @@ const ImageExportModal = ({
       return;
     }
     const maxWidth = previewNode.offsetWidth;
-    const maxHeight = previewNode.offsetHeight;
     if (!maxWidth) {
       return;
     }
@@ -105,7 +104,6 @@ const ImageExportModal = ({
       appState,
       files,
       exportPadding: DEFAULT_EXPORT_PADDING,
-      maxWidthOrHeight: Math.max(maxWidth, maxHeight),
     })
       .then((canvas) => {
         setRenderError(null);
