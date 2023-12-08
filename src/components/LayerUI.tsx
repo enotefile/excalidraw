@@ -86,13 +86,13 @@ const DefaultMainMenu: React.FC<{
       <MainMenu.DefaultItems.LoadScene />
       <MainMenu.DefaultItems.SaveToActiveFile />
       {/* FIXME we should to test for this inside the item itself */}
-      {UIOptions.canvasActions.export && <MainMenu.DefaultItems.Export />}
+      {/* {UIOptions.canvasActions.export && <MainMenu.DefaultItems.Export />} */}
       {/* FIXME we should to test for this inside the item itself */}
       {UIOptions.canvasActions.saveAsImage && (
         <MainMenu.DefaultItems.SaveAsImage />
       )}
-      <MainMenu.DefaultItems.Help />
-      <MainMenu.DefaultItems.ClearCanvas />
+      {/* <MainMenu.DefaultItems.Help />
+      <MainMenu.DefaultItems.ClearCanvas /> */}
       {/* <MainMenu.Separator />
       <MainMenu.Group title="Excalidraw links">
         <MainMenu.DefaultItems.Socials />
