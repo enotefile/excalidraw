@@ -50,10 +50,7 @@ const Footer = ({
             {!appState.viewModeEnabled && (
               <UndoRedoActions
                 renderAction={actionManager.renderAction}
-                className={clsx("zen-mode-transition", {
-                  "layer-ui__wrapper__footer-left--transition-bottom":
-                    appState.zenModeEnabled,
-                })}
+                className={clsx("zen-mode-transition")}
               />
             )}
             {showFinalize && (

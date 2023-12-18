@@ -709,19 +709,6 @@ export default function App({ appTitle, useCustom, customArgs }: AppProps) {
                 </Sidebar.TabTriggers>
               </Sidebar.Tabs>
             </Sidebar>
-            <Sidebar.Trigger
-              name="custom"
-              tab="one"
-              style={{
-                position: "absolute",
-                left: "50%",
-                transform: "translateX(-50%)",
-                bottom: "20px",
-                zIndex: 9999999999999999,
-              }}
-            >
-              Toggle Custom Sidebar
-            </Sidebar.Trigger>
             {renderMenu()}
           </Excalidraw>
           {Object.keys(commentIcons || []).length > 0 && renderCommentIcons()}

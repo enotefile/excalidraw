@@ -233,7 +233,7 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 0;
+    left: 50%;
     right: 0;
     --bar-padding: calc(4 * var(--space-factor));
     padding-top: #{"max(var(--bar-padding), var(--sat,0))"};
@@ -334,12 +334,11 @@
     position: absolute;
     bottom: 1rem;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
     cursor: default;
     pointer-events: none !important;
     box-sizing: border-box;
     padding: 0 1rem;
+    place-content: center flex-end;
 
     &--transition-left {
       section {
@@ -628,6 +627,7 @@
   }
 
   .main-menu-trigger {
+    display: none;
     @include filledButtonOnCanvas;
   }
 
