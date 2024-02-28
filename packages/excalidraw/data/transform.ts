@@ -716,7 +716,7 @@ export const convertToExcalidrawElements = (
     }
     const childrenElements: ExcalidrawElement[] = [];
 
-    element.children.forEach((id) => {
+    element.children?.forEach((id) => {
       const newElementId = oldToNewElementIdMap.get(id);
       if (!newElementId) {
         throw new Error(`Element with ${id} wasn't mapped correctly`);

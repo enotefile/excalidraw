@@ -1,8 +1,9 @@
-import { StaticCanvasAppState, AppState } from "../types";
+import { StaticCanvasAppState, AppState, CanvasSize } from "../types";
 
 import { StaticCanvasRenderConfig } from "../scene/types";
 
 import { THEME_FILTER } from "../constants";
+import { NonDeletedExcalidrawElement } from "../element/types";
 
 export const fillCircle = (
   context: CanvasRenderingContext2D,
@@ -32,6 +33,8 @@ export const bootstrapCanvas = ({
   scale,
   normalizedWidth,
   normalizedHeight,
+  canvasSize,
+  fixedCanvasFrameElement,
   theme,
   isExporting,
   viewBackgroundColor,
@@ -40,6 +43,8 @@ export const bootstrapCanvas = ({
   scale: number;
   normalizedWidth: number;
   normalizedHeight: number;
+  canvasSize: CanvasSize;
+  fixedCanvasFrameElement: NonDeletedExcalidrawElement | null;
   theme?: AppState["theme"];
   isExporting?: StaticCanvasRenderConfig["isExporting"];
   viewBackgroundColor?: StaticCanvasAppState["viewBackgroundColor"];
@@ -54,6 +59,9 @@ export const bootstrapCanvas = ({
   }
 
   // Paint background
+  const isFixedCanvasMode =
+    canvasSize.mode === "fixed" && fixedCanvasFrameElement && !isExporting;
+
   if (typeof viewBackgroundColor === "string") {
     const hasTransparence =
       viewBackgroundColor === "transparent" ||

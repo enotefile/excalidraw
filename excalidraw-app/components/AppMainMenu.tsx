@@ -1,7 +1,5 @@
 import React from "react";
-import { PlusPromoIcon } from "../../packages/excalidraw/components/icons";
 import { MainMenu } from "../../packages/excalidraw/index";
-import { LanguageList } from "./LanguageList";
 
 export const AppMainMenu: React.FC<{
   onCollabDialogOpen: () => any;

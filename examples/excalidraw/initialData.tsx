@@ -1,5 +1,5 @@
 
-import { CanvasSize } from "../../../types";
+import { CanvasSize } from "../../packages/excalidraw/types";
 import type { ExcalidrawElementSkeleton } from "@excalidraw/excalidraw/data/transform";
 import type { FileId } from "@excalidraw/excalidraw/element/types";
 

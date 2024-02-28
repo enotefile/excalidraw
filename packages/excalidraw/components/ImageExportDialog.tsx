@@ -101,6 +101,7 @@ const ImageExportModal = ({
       return;
     }
     const maxWidth = previewNode.offsetWidth;
+    const maxHeight = previewNode.offsetHeight;
     if (!maxWidth) {
       return;
     }

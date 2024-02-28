@@ -9,6 +9,7 @@ import { API } from "../helpers/api";
 import { exportToCanvas, exportToSvg } from "../../../utils";
 import { FRAME_STYLE } from "../../constants";
 import { prepareElementsForExport } from "../../data";
+import { CanvasSize } from "../../types";
 
 describe("exportToSvg", () => {
   window.EXCALIDRAW_ASSET_PATH = "/";
@@ -23,6 +24,7 @@ describe("exportToSvg", () => {
     exportBackground: false,
     viewBackgroundColor: "#ffffff",
     files: {},
+    canvasSize: { width: 595, height: 842, mode: "fixed" } as CanvasSize,
   };
 
   it("with default arguments", async () => {
@@ -44,6 +46,7 @@ describe("exportToSvg", () => {
         ...DEFAULT_OPTIONS,
         exportBackground: true,
         viewBackgroundColor: BACKGROUND_COLOR,
+        canvasSize: { width: 595, height: 842, mode: "fixed" } as CanvasSize,
       },
       null,
     );
@@ -60,6 +63,7 @@ describe("exportToSvg", () => {
       {
         ...DEFAULT_OPTIONS,
         exportWithDarkMode: true,
+        canvasSize: { width: 595, height: 842, mode: "fixed" } as CanvasSize,
       },
       null,
     );
@@ -75,6 +79,7 @@ describe("exportToSvg", () => {
       {
         ...DEFAULT_OPTIONS,
         exportPadding: 0,
+        canvasSize: { width: 595, height: 842, mode: "fixed" } as CanvasSize,
       },
       null,
     );
@@ -96,6 +101,7 @@ describe("exportToSvg", () => {
         ...DEFAULT_OPTIONS,
         exportPadding: 0,
         exportScale: SCALE,
+        canvasSize: { width: 595, height: 842, mode: "fixed" } as CanvasSize,
       },
       null,
     );
@@ -116,6 +122,7 @@ describe("exportToSvg", () => {
       {
         ...DEFAULT_OPTIONS,
         exportEmbedScene: true,
+        canvasSize: { width: 595, height: 842, mode: "fixed" } as CanvasSize,
       },
       null,
     );

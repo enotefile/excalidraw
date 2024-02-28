@@ -182,12 +182,16 @@ const _renderStaticScene = ({
     canvas,
     scale,
   );
+  const canvasSize = appState.canvasSize;
+  const fixedCanvasFrameElement = appState.fixedCanvasFrameElement;
 
   const context = bootstrapCanvas({
     canvas,
     scale,
     normalizedWidth,
     normalizedHeight,
+    canvasSize,
+    fixedCanvasFrameElement,
     theme: appState.theme,
     isExporting,
     viewBackgroundColor: appState.viewBackgroundColor,
