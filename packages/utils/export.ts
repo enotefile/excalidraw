@@ -37,6 +37,8 @@ export const exportToCanvas = ({
   elements,
   appState,
   files,
+  maxWidthOrHeight,
+  getDimensions,
   exportPadding,
   exportingFrame,
 }: ExportOpts & {
