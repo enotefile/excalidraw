@@ -1,5 +1,5 @@
 {
-  "name": "@excalidraw/excalidraw",
+  "name": "@notud/excalidraw",
   "version": "0.17.1",
   "main": "./dist/prod/index.js",
   "type": "module",
@@ -124,8 +124,8 @@
   "bugs": "https://github.com/excalidraw/excalidraw/issues",
   "homepage": "https://github.com/excalidraw/excalidraw/tree/master/packages/excalidraw",
   "scripts": {
-    "gen:types": "rm -rf types && tsc",
-    "build:esm": "rm -rf dist && node ../../scripts/buildPackage.js && yarn gen:types",
+    "gen:types": "rimraf types && tsc",
+    "build:esm": "rimraf dist && node ../../scripts/buildPackage.js && yarn gen:types",
     "pack": "yarn build:umd && yarn pack",
     "start": "node ../../scripts/buildExample.mjs && vite",
     "build:example": "node ../../scripts/buildExample.mjs",

@@ -91,7 +91,6 @@ import {
 } from "../packages/excalidraw/data/library";
 import { AppMainMenu } from "./components/AppMainMenu";
 import { AppWelcomeScreen } from "./components/AppWelcomeScreen";
-import { AppFooter } from "./components/AppFooter";
 import { atom, Provider, useAtom, useAtomValue } from "jotai";
 import { useAtomWithInitialValue } from "../packages/excalidraw/jotai";
 import { appJotaiStore } from "./app-jotai";
@@ -793,7 +792,7 @@ const ExcalidrawWrapper = () => {
             </OverwriteConfirmDialog.Action>
           )}
         </OverwriteConfirmDialog>
-        <AppFooter />
+        {/* <AppFooter /> */}
         <TTDDialog
           onTextSubmit={async (input) => {
             try {

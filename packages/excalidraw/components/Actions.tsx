@@ -321,14 +321,14 @@ export const ShapesSwitcher = ({
           >
             {t("toolBar.frame")}
           </DropdownMenu.Item>
-          <DropdownMenu.Item
+          {/* <DropdownMenu.Item
             onSelect={() => app.setActiveTool({ type: "embeddable" })}
             icon={EmbedIcon}
             data-testid="toolbar-embeddable"
             selected={embeddableToolSelected}
           >
             {t("toolBar.embeddable")}
-          </DropdownMenu.Item>
+          </DropdownMenu.Item> */}
           <DropdownMenu.Item
             onSelect={() => app.setActiveTool({ type: "laser" })}
             icon={laserPointerToolIcon}
@@ -338,7 +338,7 @@ export const ShapesSwitcher = ({
           >
             {t("toolBar.laser")}
           </DropdownMenu.Item>
-          <div style={{ margin: "6px 0", fontSize: 14, fontWeight: 600 }}>
+          {/* <div style={{ margin: "6px 0", fontSize: 14, fontWeight: 600 }}>
             Generate
           </div>
           {app.props.aiEnabled !== false && <TTDDialogTriggerTunnel.Out />}
@@ -374,7 +374,7 @@ export const ShapesSwitcher = ({
                 {t("toolBar.magicSettings")}
               </DropdownMenu.Item>
             </>
-          )}
+          )} */}
         </DropdownMenu.Content>
       </DropdownMenu>
     </>
