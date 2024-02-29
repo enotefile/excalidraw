@@ -1,7 +1,7 @@
 
 import { CanvasSize } from "../../packages/excalidraw/types";
-import type { ExcalidrawElementSkeleton } from "@excalidraw/excalidraw/data/transform";
-import type { FileId } from "@excalidraw/excalidraw/element/types";
+import type { ExcalidrawElementSkeleton } from "@notud/excalidraw/data/transform";
+import type { FileId } from "@notud/excalidraw/element/types";
 
 const canvasWidth = 595;
 const canvasHeight = 842;

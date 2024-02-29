@@ -23,7 +23,7 @@ const headerForType = {
 const badCommits = [];
 const getCommitHashForLastVersion = async () => {
   try {
-    const commitMessage = `"release @excalidraw/excalidraw@${lastVersion}"`;
+    const commitMessage = `"release @notud/excalidraw@${lastVersion}"`;
     const { stdout } = await exec(
       `git log --format=format:"%H" --grep=${commitMessage}`,
     );

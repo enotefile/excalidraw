@@ -1,9 +1,9 @@
 "use client";
-import * as excalidrawLib from "@excalidraw/excalidraw";
-import { Excalidraw } from "@excalidraw/excalidraw";
+import * as excalidrawLib from "@notud/excalidraw";
+import { Excalidraw } from "@notud/excalidraw";
 import App from "../../components/App";
 
-import "@excalidraw/excalidraw/index.css";
+import "@notud/excalidraw/index.css";
 
 const ExcalidrawWrapper: React.FC = () => {
   return (

@@ -1,6 +1,6 @@
-import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/dist/excalidraw/types";
+import { ExcalidrawImperativeAPI } from "@notud/excalidraw/dist/excalidraw/types";
 import CustomFooter from "./CustomFooter";
-import type * as TExcalidraw from "@excalidraw/excalidraw";
+import type * as TExcalidraw from "@notud/excalidraw";
 
 const MobileFooter = ({
   excalidrawAPI,

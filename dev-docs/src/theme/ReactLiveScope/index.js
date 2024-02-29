@@ -5,7 +5,7 @@ import { useColorMode } from "@docusaurus/theme-common";
 
 let ExcalidrawComp = {};
 if (ExecutionEnvironment.canUseDOM) {
-  ExcalidrawComp = require("@excalidraw/excalidraw");
+  ExcalidrawComp = require("@notud/excalidraw");
 }
 const Excalidraw = React.forwardRef((props, ref) => {
   const { colorMode } = useColorMode();

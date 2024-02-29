@@ -1,5 +1,5 @@
-import type * as TExcalidraw from "@excalidraw/excalidraw";
-import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/dist/excalidraw/types";
+import type * as TExcalidraw from "@notud/excalidraw";
+import type { ExcalidrawImperativeAPI } from "@notud/excalidraw/dist/excalidraw/types";
 
 const COMMENT_SVG = (
   <svg
