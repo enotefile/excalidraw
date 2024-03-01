@@ -85,7 +85,7 @@ export const getDefaultAppState = (): Omit<
     showStats: false,
     startBoundElement: null,
     suggestedBindings: [],
-    frameRendering: { enabled: true, clip: true, name: true, outline: true },
+    frameRendering: { enabled: true, clip: true, name: false, outline: true },
     frameToHighlight: null,
     editingFrame: null,
     elementsToHighlight: null,

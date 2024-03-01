@@ -148,11 +148,8 @@ const prepareElementsForRender = ({
 
   if (exportingFrame) {
     nextElements = getElementsOverlappingFrame(elements, exportingFrame);
-  } else if (frameRendering.enabled && frameRendering.name) {
-    nextElements = addFrameLabelsAsTextElements(elements, {
-      exportWithDarkMode,
-    });
-  } else {
+  } 
+  else {
     nextElements = elements;
   }
 
