@@ -1,3 +1,4 @@
+import { restore } from "../data/restore";
 import {
   convertToExcalidrawElements,
   ExcalidrawElementSkeleton,
@@ -53,8 +54,17 @@ export const fixCanvasSize = (
     localDataState.elements?.length > 0 ||
     appState.canvasSize.mode !== "fixed"
   ) {
+    localDataState.files = {
+      "b12919d6-f7a7-c543-cd6d-585552719f67": {
+        dataURL: backgroundImage,
+        id: "b12919d6-f7a7-c543-cd6d-585552719f67",
+        mimeType: "image/jpeg",
+      },
+    };
+
     return localDataState;
   }
+
   base64BackgroundImage.dataURL = backgroundImage;
   noteSnapshot.appState = appState;
 
@@ -74,6 +84,12 @@ export const fixCanvasSize = (
   noteSnapshot.elements = convertToExcalidrawElements(
     elements as ExcalidrawElementSkeleton[],
   );
+
+  // Fix wrong x,y for the frame element after call convertToExcalidrawElements
+  const x = 0;
+  const y = 0;
+  noteSnapshot.elements[1] = { ...noteSnapshot.elements[1], x };
+  noteSnapshot.elements[1] = { ...noteSnapshot.elements[1], y };
 
   return noteSnapshot;
 };
