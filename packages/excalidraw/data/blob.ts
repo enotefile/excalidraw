@@ -12,6 +12,7 @@ import { FileSystemHandle, nativeFileSystemSupported } from "./filesystem";
 import { isValidExcalidrawData, isValidLibrary } from "./json";
 import { restore, restoreLibraryItems } from "./restore";
 import { ImportedLibraryData } from "./types";
+import { Buffer } from "buffer";
 
 const parseFileContents = async (blob: Blob | File) => {
   let contents: string;
@@ -262,7 +263,12 @@ export const getDataURL = async (file: Blob | File): Promise<DataURL> => {
 
 export const dataURLToFile = (dataURL: DataURL, filename = "") => {
   const dataIndexStart = dataURL.indexOf(",");
-  const byteString = atob(dataURL.slice(dataIndexStart + 1));
+
+  const byteString = Buffer.from(
+    dataURL.slice(dataIndexStart + 1),
+    "base64",
+  ).toString("binary");
+
   const mimeType = dataURL.slice(0, dataIndexStart).split(":")[1].split(";")[0];
 
   const ab = new ArrayBuffer(byteString.length);

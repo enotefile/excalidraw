@@ -1,5 +1,6 @@
 import { deflate, inflate } from "pako";
 import { encryptData, decryptData } from "./encryption";
+import { Buffer } from "buffer";
 
 // -----------------------------------------------------------------------------
 // byte (binary) strings
@@ -53,8 +54,8 @@ export const stringToBase64 = async (str: string, isByteString = false) => {
 // async to align with stringToBase64
 export const base64ToString = async (base64: string, isByteString = false) => {
   return isByteString
-    ? window.atob(base64)
-    : byteStringToString(window.atob(base64));
+    ? Buffer.from(base64, "base64").toString("binary")
+    : byteStringToString(Buffer.from(base64, "base64").toString("binary"));
 };
 
 // -----------------------------------------------------------------------------
