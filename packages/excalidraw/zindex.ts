@@ -504,36 +504,90 @@ export const moveOneLeft = (
   allElements: readonly ExcalidrawElement[],
   appState: AppState,
 ) => {
-  return shiftElementsByOne(allElements, appState, "left");
+  const elements = shiftElementsByOne(allElements, appState, "left");
+
+  if (cannotMoveElements(appState, elements)) {
+    return allElements;
+  }
+
+  return elements;
 };
 
 export const moveOneRight = (
   allElements: readonly ExcalidrawElement[],
   appState: AppState,
 ) => {
-  return shiftElementsByOne(allElements, appState, "right");
+  const elements = shiftElementsByOne(allElements, appState, "right");
+
+  if (cannotMoveElements(appState, elements)) {
+    return allElements;
+  }
+
+  return elements;
 };
 
 export const moveAllLeft = (
   allElements: readonly ExcalidrawElement[],
   appState: AppState,
 ) => {
-  return shiftElementsAccountingForFrames(
+  const elements = shiftElementsAccountingForFrames(
     allElements,
     appState,
     "left",
     shiftElementsToEnd,
   );
+
+  if (cannotMoveElements(appState, elements)) {
+    return allElements;
+  }
+
+  return elements;
 };
 
 export const moveAllRight = (
   allElements: readonly ExcalidrawElement[],
   appState: AppState,
 ) => {
-  return shiftElementsAccountingForFrames(
+  const elements = shiftElementsAccountingForFrames(
     allElements,
     appState,
     "right",
     shiftElementsToEnd,
   );
+
+  if (cannotMoveElements(appState, elements)) {
+    return allElements;
+  }
+
+  return elements;
 };
+
+function cannotMoveElements(
+  appState: AppState,
+  elements: readonly ExcalidrawElement[],
+): boolean {
+  const lockedRectangleIndex = elements.findIndex(
+    (p) =>
+      p.type === "rectangle" &&
+      p.locked &&
+      appState.canvasSize.mode === "fixed" &&
+      p.width === appState.canvasSize.width,
+  );
+
+  if (lockedRectangleIndex > 0) {
+    return true;
+  }
+
+  const lockedImageIndex = elements.findIndex(
+    (p) =>
+      p.type === "image" &&
+      p.locked &&
+      appState.canvasSize.mode === "fixed" &&
+      p.width === appState.canvasSize.width,
+  );
+
+  return (
+    (lockedRectangleIndex === -1 && lockedImageIndex > 0) ||
+    (lockedRectangleIndex === 0 && lockedImageIndex > 1)
+  );
+}
