@@ -424,6 +424,18 @@ function shiftElementsAccountingForFrames(
     }),
   );
 
+  let isMoveLockedElement = false;
+  elementsToMove.forEach((element) => {
+    if (element.locked) {
+      isMoveLockedElement = true;
+      return;
+    }
+  });
+
+  if (isMoveLockedElement) {
+    return allElements;
+  }
+
   const frameAwareContiguousElementsToMove: {
     regularElements: ExcalidrawElement[];
     frameChildren: Map<ExcalidrawFrameLikeElement["id"], ExcalidrawElement[]>;
