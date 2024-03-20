@@ -154,9 +154,9 @@ export const SelectedShapeActions = ({
       <fieldset>
         <legend>{t("labels.layers")}</legend>
         <div className="buttonList">
-          {renderAction("sendToBack")}
+          {/* {renderAction("sendToBack")} */}
           {renderAction("sendBackward")}
-          {renderAction("bringToFront")}
+          {/* {renderAction("bringToFront")} */}
           {renderAction("bringForward")}
         </div>
       </fieldset>

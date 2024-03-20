@@ -9454,8 +9454,8 @@ class App extends React.Component<AppProps, AppState> {
 
       actionSendBackward,
       actionBringForward,
-      actionSendToBack,
-      actionBringToFront,
+      // actionSendToBack,
+      // actionBringToFront,
 
       CONTEXT_MENU_SEPARATOR,
       actionFlipHorizontal,
