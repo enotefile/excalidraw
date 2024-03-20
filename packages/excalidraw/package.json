@@ -1,6 +1,6 @@
 {
   "name": "@notud/excalidraw",
-  "version": "0.17.8",
+  "version": "0.17.9",
   "main": "main.js",
   "types": "types/packages/excalidraw/index.d.ts",
   "files": [
