@@ -1,4 +1,3 @@
-import { restore } from "../data/restore";
 import {
   convertToExcalidrawElements,
   ExcalidrawElementSkeleton,

@@ -1460,7 +1460,8 @@ class App extends React.Component<AppProps, AppState> {
       <div
         className={clsx("excalidraw excalidraw-container", {
           "excalidraw--view-mode": this.state.viewModeEnabled,
-          "excalidraw--fixed-size-canvas": this.state.canvasSize.mode === "fixed",
+          "excalidraw--fixed-size-canvas":
+            this.state.canvasSize.mode === "fixed",
           "excalidraw--mobile": this.device.editor.isMobile,
         })}
         style={{
@@ -4440,6 +4441,42 @@ class App extends React.Component<AppProps, AppState> {
   }) => {
     let shouldBindToContainer = false;
 
+    const topLayerFrame = this.getTopLayerFrameAtSceneCoords({
+      x: sceneX,
+      y: sceneY,
+    });
+
+    if (!container) {
+      let containerWidth = 200;
+      let containerHeight = 100;
+
+      container = convertToExcalidrawElements([
+        {
+          type: "rectangle",
+          opacity: 100,
+          x: sceneX - containerWidth / 2,
+          y: sceneY - containerHeight / 2,
+          width: containerWidth,
+          height: containerHeight,
+          strokeWidth: 0,
+          strokeColor: "transparent",
+          backgroundColor: "transparent",
+          frameId: topLayerFrame ? topLayerFrame.id : null,
+          label: {
+            x: 0,
+            y: 0,
+            text: "",
+            textAlign: "left",
+            verticalAlign: "top",
+          },
+        },
+      ])[0] as ExcalidrawTextContainer;
+      const frameIndex = topLayerFrame
+        ? this.scene.getElementIndex(topLayerFrame.id)
+        : 2;
+      this.scene.insertElementAtIndex(container, frameIndex);
+    }
+
     let parentCenterPosition =
       insertAtParentCenter &&
       this.getTextWysiwygSnappedToCenterPosition(
@@ -4513,11 +4550,6 @@ class App extends React.Component<AppProps, AppState> {
       }
     }
 
-    const topLayerFrame = this.getTopLayerFrameAtSceneCoords({
-      x: sceneX,
-      y: sceneY,
-    });
-
     const element = existingTextElement
       ? existingTextElement
       : newTextElement({
@@ -4547,7 +4579,6 @@ class App extends React.Component<AppProps, AppState> {
           groupIds: container?.groupIds ?? [],
           lineHeight,
           angle: container?.angle ?? 0,
-          frameId: topLayerFrame ? topLayerFrame.id : null,
         });
 
     if (!existingTextElement && shouldBindToContainer && container) {
