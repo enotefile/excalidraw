@@ -4447,8 +4447,8 @@ class App extends React.Component<AppProps, AppState> {
     });
 
     if (!container) {
-      let containerWidth = 200;
-      let containerHeight = 100;
+      let containerWidth = 150;
+      let containerHeight = 25;
 
       container = convertToExcalidrawElements([
         {
