@@ -207,6 +207,8 @@ Excalidraw.displayName = "Excalidraw";
 
 export {
   getSceneVersion,
+  hashElementsVersion,
+  hashString,
   isInvisiblySmallElement,
   getNonDeletedElements,
 } from "./element";
@@ -217,22 +219,31 @@ export {
   restoreElements,
   restoreLibraryItems,
 } from "./data/restore";
+
 export {
   exportToCanvas,
   exportToBlob,
   exportToSvg,
-  serializeAsJSON,
-  serializeLibraryAsJSON,
-  loadLibraryFromBlob,
+  exportToClipboard,
+} from "../utils/export";
+
+export { serializeAsJSON, serializeLibraryAsJSON } from "./data/json";
+export {
   loadFromBlob,
   loadSceneOrLibraryFromBlob,
-  getFreeDrawSvgPath,
-  exportToClipboard,
-  mergeLibraryItems,
-} from "../utils/export";
+  loadLibraryFromBlob,
+} from "./data/blob";
+export { getFreeDrawSvgPath } from "./renderer/renderElement";
+export { mergeLibraryItems, getLibraryItemsHash } from "./data/library";
 export { isLinearElement } from "./element/typeChecks";
 
-export { FONT_FAMILY, THEME, MIME_TYPES, ROUNDNESS } from "./constants";
+export {
+  FONT_FAMILY,
+  THEME,
+  MIME_TYPES,
+  ROUNDNESS,
+  DEFAULT_LASER_COLOR,
+} from "./constants";
 
 export {
   mutateElement,
@@ -268,4 +279,4 @@ export {
   elementsOverlappingBBox,
   isElementInsideBBox,
   elementPartiallyOverlapsWithOrContainsBBox,
-} from "../utils/export";
+} from "../utils/withinBounds";
