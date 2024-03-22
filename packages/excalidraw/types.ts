@@ -38,7 +38,7 @@ import type { FileSystemHandle } from "./data/filesystem";
 import type { IMAGE_MIME_TYPES, MIME_TYPES } from "./constants";
 import { ContextMenuItems } from "./components/ContextMenu";
 import { SnapLine } from "./snapping";
-import { Merge, ValueOf } from "./utility-types";
+import { Merge, MaybePromise, ValueOf } from "./utility-types";
 
 export type Point = Readonly<RoughPoint>;
 
@@ -61,12 +61,28 @@ export type Collaborator = Readonly<{
   id?: string;
   socketId?: SocketId;
   isCurrentUser?: boolean;
+  isInCall?: boolean;
+  isSpeaking?: boolean;
+  isMuted?: boolean;
 }>;
 
 export type CollaboratorPointer = {
   x: number;
   y: number;
   tool: "pointer" | "laser";
+  /**
+   * Whether to render cursor + username. Useful when you only want to render
+   * laser trail.
+   *
+   * @default true
+   */
+  renderCursor?: boolean;
+  /**
+   * Explicit laser color.
+   *
+   * @default string collaborator's cursor color
+   */
+  laserColor?: string;
 };
 
 export type DataURL = string & { _brand: "DataURL" };
@@ -332,9 +348,9 @@ export interface AppState {
     y: number;
   } | null;
   objectsSnapModeEnabled: boolean;
-  /** the user's clientId & username who is being followed on the canvas */
+  /** the user's socket id & username who is being followed on the canvas */
   userToFollow: UserToFollow | null;
-  /** the clientIds of the users following the current user */
+  /** the socket ids of the users following the current user */
   followedBy: Set<SocketId>;
 }
 
@@ -393,21 +409,14 @@ export type LibraryItems_anyVersion = LibraryItems | LibraryItems_v1;
 export type LibraryItemsSource =
   | ((
       currentLibraryItems: LibraryItems,
-    ) =>
-      | Blob
-      | LibraryItems_anyVersion
-      | Promise<LibraryItems_anyVersion | Blob>)
-  | Blob
-  | LibraryItems_anyVersion
-  | Promise<LibraryItems_anyVersion | Blob>;
+    ) => MaybePromise<LibraryItems_anyVersion | Blob>)
+  | MaybePromise<LibraryItems_anyVersion | Blob>;
 // -----------------------------------------------------------------------------
 
 export type ExcalidrawInitialDataState = Merge<
   ImportedDataState,
   {
-    libraryItems?:
-      | Required<ImportedDataState>["libraryItems"]
-      | Promise<Required<ImportedDataState>["libraryItems"]>;
+    libraryItems?: MaybePromise<Required<ImportedDataState>["libraryItems"]>;
   }
 >;
 
@@ -422,10 +431,7 @@ export interface ExcalidrawProps {
     appState: AppState,
     files: BinaryFiles,
   ) => void;
-  initialData?:
-    | ExcalidrawInitialDataState
-    | null
-    | Promise<ExcalidrawInitialDataState | null>;
+  initialData?: MaybePromise<ExcalidrawInitialDataState | null>;
   excalidrawAPI?: (api: ExcalidrawImperativeAPI) => void;
   isCollaborating?: boolean;
   onPointerUpdate?: (payload: {
@@ -657,7 +663,7 @@ export type PointerDownState = Readonly<{
 
 export type UnsubscribeCallback = () => void;
 
-export type ExcalidrawImperativeAPI = {
+export interface ExcalidrawImperativeAPI {
   updateScene: InstanceType<typeof App>["updateScene"];
   updateLibrary: InstanceType<typeof Library>["updateLibrary"];
   resetScene: InstanceType<typeof App>["resetScene"];
@@ -714,7 +720,7 @@ export type ExcalidrawImperativeAPI = {
   onUserFollow: (
     callback: (payload: OnUserFollowedPayload) => void,
   ) => UnsubscribeCallback;
-};
+}
 
 export type Device = Readonly<{
   viewport: {
