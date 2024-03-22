@@ -9107,6 +9107,11 @@ class App extends React.Component<AppProps, AppState> {
       includeLockedElements: true,
     });
 
+    // Don't allow users to right-click on locked elements.
+    if (element?.locked) {
+      return;
+    }
+
     const selectedElements = this.scene.getSelectedElements(this.state);
     const isHittingCommonBoundBox =
       this.isHittingCommonBoundingBoxOfSelectedElements(
