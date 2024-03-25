@@ -1,3 +1,4 @@
+import { backgroundImageScaleValue } from "./constants";
 import { newElement } from "./element";
 import { newElementWith } from "./element/mutateElement";
 import { getNormalizedZoom } from "./scene";
@@ -63,7 +64,7 @@ function updateCanvasSize(
   const { width: viewportWidth, height: viewportHeight } = state;
 
   let scale = 0;
-  if (viewportWidth > canvasWidth) {
+  if (viewportWidth > canvasWidth / backgroundImageScaleValue) {
     scale = Math.max(
       viewportWidth / canvasWidth,
       viewportHeight / canvasHeight,

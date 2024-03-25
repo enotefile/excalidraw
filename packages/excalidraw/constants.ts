@@ -25,6 +25,8 @@ export const supportsResizeObserver =
 
 export const APP_NAME = "Excalidraw";
 
+export const backgroundImageScaleValue = 2.2;
+
 export const DRAGGING_THRESHOLD = 10; // px
 export const LINE_CONFIRM_THRESHOLD = 8; // px
 export const ELEMENT_SHIFT_TRANSLATE_AMOUNT = 5;
@@ -141,7 +143,7 @@ export const FRAME_STYLE = {
 export const WINDOWS_EMOJI_FALLBACK_FONT = "Segoe UI Emoji";
 
 export const MIN_FONT_SIZE = 1;
-export const DEFAULT_FONT_SIZE = 14;
+export const DEFAULT_FONT_SIZE = 14 * backgroundImageScaleValue;
 export const DEFAULT_FONT_FAMILY: FontFamilyValues = FONT_FAMILY.Helvetica;
 export const DEFAULT_TEXT_ALIGN = "left";
 export const DEFAULT_VERTICAL_ALIGN = "top";
@@ -327,9 +329,9 @@ export const ROUGHNESS = {
 } as const;
 
 export const STROKE_WIDTH = {
-  thin: 0.3,
-  bold: 0.8,
-  extraBold: 1.3,
+  thin: 0.3 * backgroundImageScaleValue,
+  bold: 0.8 * backgroundImageScaleValue,
+  extraBold: 1.3 * backgroundImageScaleValue,
 } as const;
 
 export const DEFAULT_ELEMENT_PROPS: {
@@ -345,7 +347,7 @@ export const DEFAULT_ELEMENT_PROPS: {
   strokeColor: COLOR_PALETTE.black,
   backgroundColor: COLOR_PALETTE.transparent,
   fillStyle: "solid",
-  strokeWidth: 0.3,
+  strokeWidth: STROKE_WIDTH.thin,
   strokeStyle: "solid",
   roughness: ROUGHNESS.architect,
   opacity: 100,

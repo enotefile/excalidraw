@@ -51,6 +51,7 @@ import {
   ArrowheadDiamondOutlineIcon,
 } from "../components/icons";
 import {
+  backgroundImageScaleValue,
   DEFAULT_FONT_FAMILY,
   DEFAULT_FONT_SIZE,
   FONT_FAMILY,
@@ -614,25 +615,25 @@ export const actionChangeFontSize = register({
         group="font-size"
         options={[
           {
-            value: 14,
+            value: 14 * backgroundImageScaleValue,
             text: t("labels.small"),
             icon: FontSizeSmallIcon,
             testId: "fontSize-small",
           },
           {
-            value: 18,
+            value: 18 * backgroundImageScaleValue,
             text: t("labels.medium"),
             icon: FontSizeMediumIcon,
             testId: "fontSize-medium",
           },
           {
-            value: 22,
+            value: 22 * backgroundImageScaleValue,
             text: t("labels.large"),
             icon: FontSizeLargeIcon,
             testId: "fontSize-large",
           },
           {
-            value: 26,
+            value: 26 * backgroundImageScaleValue,
             text: t("labels.veryLarge"),
             icon: FontSizeExtraLargeIcon,
             testId: "fontSize-veryLarge",

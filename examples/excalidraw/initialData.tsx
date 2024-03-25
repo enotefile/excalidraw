@@ -1,10 +1,9 @@
-
+import { backgroundImageScaleValue } from "../../packages/excalidraw/constants";
 import { CanvasSize } from "../../packages/excalidraw/types";
-import type { ExcalidrawElementSkeleton } from "@notud/excalidraw/data/transform";
-import type { FileId } from "@notud/excalidraw/element/types";
 
-const canvasWidth = 595;
-const canvasHeight = 842;
+const canvasWidth = 595 * backgroundImageScaleValue;
+const canvasHeight = 842 * backgroundImageScaleValue;
+
 const elements: any[] = [
   {
     type: "frame",
@@ -75,7 +74,11 @@ export default {
     viewBackgroundColor: "#AFEEEE",
     currentItemFontFamily: 1,
     exportScale: 1.5,
-    canvasSize: { width: 595, height: 842, mode: "fixed" } as CanvasSize,
+    canvasSize: {
+      width: canvasWidth,
+      height: canvasHeight,
+      mode: "fixed",
+    } as CanvasSize,
   },
   scrollToContent: true,
   libraryItems: [

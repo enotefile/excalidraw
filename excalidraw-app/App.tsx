@@ -7,6 +7,7 @@ import { ErrorDialog } from "../packages/excalidraw/components/ErrorDialog";
 import { TopErrorBoundary } from "./components/TopErrorBoundary";
 import {
   APP_NAME,
+  backgroundImageScaleValue,
   EVENT,
   THEME,
   TITLE_TIMEOUT,
@@ -106,11 +107,14 @@ import Trans from "../packages/excalidraw/components/Trans";
 import { ShareDialog, shareDialogStateAtom } from "./share/ShareDialog";
 import { fixCanvasSize } from "../packages/excalidraw/element/fixCanvasSize";
 import { base64BackgroundImage } from "../packages/excalidraw/element/base64BackgroundImage";
-import CollabError, { collabErrorIndicatorAtom } from "./collab/CollabError";
+import { collabErrorIndicatorAtom } from "./collab/CollabError";
 
 polyfill();
 
 window.EXCALIDRAW_THROTTLE_RENDER = true;
+
+const canvasWidth = 595 * backgroundImageScaleValue;
+const canvasHeight = 842 * backgroundImageScaleValue;
 
 let isSelfEmbedding = false;
 
@@ -748,7 +752,7 @@ const ExcalidrawWrapper = () => {
         handleKeyboardGlobally={true}
         autoFocus={true}
         theme={theme}
-        defaultCanvasSize={{ width: 595, height: 842 }}
+        defaultCanvasSize={{ width: canvasWidth, height: canvasHeight }}
         renderTopRightUI={(isMobile) => {
           // if (isMobile || !collabAPI || isCollabDisabled) {
           return null;
