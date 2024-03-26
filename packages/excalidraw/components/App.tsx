@@ -86,6 +86,7 @@ import {
   EDITOR_LS_KEYS,
   isIOS,
   supportsResizeObserver,
+  backgroundImageScaleValue,
 } from "../constants";
 import { ExportedElements, exportCanvas, loadFromBlob } from "../data";
 import Library, { distributeLibraryItemsOnSquareGrid } from "../data/library";
@@ -4445,8 +4446,8 @@ class App extends React.Component<AppProps, AppState> {
     });
 
     if (!container) {
-      let containerWidth = 250;
-      let containerHeight = 25;
+      let containerWidth = 250 * backgroundImageScaleValue;
+      let containerHeight = 25 * backgroundImageScaleValue;
 
       container = convertToExcalidrawElements([
         {
