@@ -27,6 +27,7 @@ import {
   removeElementsFromFrame,
   replaceAllElementsInFrame,
 } from "../frame";
+import { syncMovedIndices } from "../fractionalIndex";
 
 const allElementsInSameGroup = (elements: readonly ExcalidrawElement[]) => {
   if (elements.length >= 2) {
@@ -61,6 +62,8 @@ const enableActionGroup = (
 
 export const actionGroup = register({
   name: "group",
+  label: "labels.group",
+  icon: (appState) => <GroupIcon theme={appState.theme} />,
   trackEvent: { category: "element" },
   perform: (elements, appState, _, app) => {
     const selectedElements = app.scene.getSelectedElements({
@@ -138,11 +141,12 @@ export const actionGroup = register({
       .filter(
         (updatedElement) => !isElementInGroup(updatedElement, newGroupId),
       );
-    nextElements = [
+    const reorderedElements = [
       ...elementsBeforeGroup,
       ...elementsInGroup,
       ...elementsAfterGroup,
     ];
+    syncMovedIndices(reorderedElements, arrayToMap(elementsInGroup));
 
     return {
       appState: {
@@ -153,11 +157,10 @@ export const actionGroup = register({
           getNonDeletedElements(nextElements),
         ),
       },
-      elements: nextElements,
+      elements: reorderedElements,
       commitToHistory: true,
     };
   },
-  contextItemLabel: "labels.group",
   predicate: (elements, appState, _, app) =>
     enableActionGroup(elements, appState, app),
   keyTest: (event) =>
@@ -177,6 +180,8 @@ export const actionGroup = register({
 
 export const actionUngroup = register({
   name: "ungroup",
+  label: "labels.ungroup",
+  icon: (appState) => <UngroupIcon theme={appState.theme} />,
   trackEvent: { category: "element" },
   perform: (elements, appState, _, app) => {
     const groupIds = getSelectedGroupIds(appState);
@@ -263,7 +268,6 @@ export const actionUngroup = register({
     event.shiftKey &&
     event[KEYS.CTRL_OR_CMD] &&
     event.key === KEYS.G.toUpperCase(),
-  contextItemLabel: "labels.ungroup",
   predicate: (elements, appState) => getSelectedGroupIds(appState).length > 0,
 
   PanelComponent: ({ elements, appState, updateData }) => (
