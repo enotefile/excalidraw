@@ -3132,4 +3132,111 @@ First release of `@excalidraw/excalidraw`## Excalidraw Library
 - Apply convertToExcalidrawElements
 
 ---
+## Excalidraw Library
+
+**_This section lists the updates made to the excalidraw library and will not affect the integration._**
+
+### Features
+
+- ND-889 The performance of Excalidraw from Notud is not as good as the original Excalidraw.
+
+- Remove the AI icon on More Tools
+
+- ND-888 Don't allow users to right-click on locked elements.
+
+- ND-882 Hide "Send to back" and "Bring to front" features.
+
+- ND-881 Prevent elements from being sent back (behind the background)
+
+- ND-881 Prevent elements from being send to back (behind the background)
+
+- ND-879 Change the "Text" tool from Excalidraw tools to "Text with container" to support multiline text.
+
+- ND-851 Increasing image upload size to match Canvas from 2MBto 10MB
+
+- Support build with old way (build:umd)
+
+- Change from @excalidraw/excalidraw to @notud/excalidraw
+
+- Hide some tools
+
+- ND-843 The default FreeDraw Element's stroke should be thinner.
+
+- ND-784 Move action bottom to the right corner, hide the main menu.
+
+- ND-766 Remove some redundant menu items
+
+- ND-737 Support exportScale for fixed canvas
+
+- Update EXCALIDRAW_ASSET_PATH
+
+- Update default roughness to architect instead of artist
+
+- Update default font family to normal (instead of hand-drawn)
+
+- ND-714 update stroke-width and font-size to smaller
+
+- ND-715 Not duplicate lock elements. (to keep default elements)
+
+- ND-714 Set the stroke width to thin and font-size to small as the default value.
+
+- ND-713 Change frame element from rounded corners to square corners
+
+- Support zoom for fixed canvas size
+
+- Zoom canvas to the viewport width
+
+- Apply auto zoom and fix bug when update adjustAppStateForCanvasSize from App.tsx
+
+- Remove redundant actions on LayerUI and refactor code
+
+- ND-706 Remove some redundant actions on the Menu Context (right + click)
+
+- ND-705 Not delete lock elements. (to keep some default elements)
+
+- ND-704 Remove some redundant actions on the UI
+
+- ND-692 hide the frame name
+
+- Support fixed canvas size
+
+### Fixes
+
+- ND-866 Some time Loading scene... showing after creating new note.
+
+- ND-862 Error when adding some images to the note.
+
+- ND-855 The frame element broke the print layout in new Excalidraw
+
+- ND-853 The background color of the canvas should be grey from the new Excalidraw.
+
+- Some issues after merge code from original repo
+
+- Missing code when merge code
+
+- Resolve some conflicts when merge code
+
+- Issue Tainted canvases may not be exported and hide the menu button when view mode enabled
+
+- ND-716 Scroll back to content is scroll to wrong position.
+
+- ND-716 Scroll back to content is scroll to the wrong position.
+
+- Issue can't draw at the bottom when user doesn't zoom in or out
+
+- Issue when updating fixed canvas size should get state from excalidrawAPI
+
+###  Refactor
+
+- Split base64 image to another file
+
+- Optimise adjustAppStateForCanvasSize function
+
+- Code
+
+- Code
+
+- Apply convertToExcalidrawElements
+
+---
 
