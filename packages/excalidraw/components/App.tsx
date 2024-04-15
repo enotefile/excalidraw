@@ -558,6 +558,7 @@ class App extends React.Component<AppProps, AppState> {
   eraserTrail = new AnimatedTrail(this.animationFrameHandler, this, {
     streamline: 0.2,
     size: 5,
+    keepHead: true,
     sizeMapping: (c) => {
       const DECAY_TIME = 200;
       const DECAY_LENGTH = 10;

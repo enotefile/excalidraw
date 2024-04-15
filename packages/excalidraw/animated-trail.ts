@@ -90,7 +90,7 @@ export class AnimatedTrail implements Trail {
   endPath() {
     if (this.currentTrail) {
       this.currentTrail.close();
-      // this.currentTrail.options.keepHead = false;
+      this.currentTrail.options.keepHead = false;
       this.pastTrails.push(this.currentTrail);
       this.currentTrail = undefined;
       this.update();
