@@ -24,21 +24,23 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
 
+      - name: Build
+        run: |
+          yarn --cwd ${{ env.RELEASE_PACKAGE_PATH }} build:esm
+
       - name: Get next version (dry run)
         uses: anothrNick/github-tag-action@1.64.0
         id: get-next-version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INITIAL_VERSION: 0.17.17
-          MINOR_STRING_TOKEN: "feat:"
-          PATCH_STRING_TOKEN: "chore:"
+          DEFAULT_BUMP: "patch"
 
       - uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_TOKEN }}
           package: ${{ env.RELEASE_PACKAGE_PATH }}
 
-      - name: Release
+      - name: Publish
         run: |
-          yarn --cwd ${{ env.RELEASE_PACKAGE_PATH }} build:esm
           npm publish
