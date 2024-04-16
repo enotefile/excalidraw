@@ -47,15 +47,24 @@ jobs:
           yarn
           yarn --cwd ${{ env.RELEASE_PACKAGE_PATH }} build:esm
 
-      - name: Publish
-        uses: JS-DevTools/npm-publish@v3
-        id: publish
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
-          package: ${{ env.RELEASE_PACKAGE_PATH }}/package.json
-          access: "public"
-      - if: ${{ steps.publish.outputs.type }}
-        run: echo "Version increased!"
+      - name: Set up publish access
+        run: |
+          npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Build
+        run: |
+          yarn --cwd ${{ env.RELEASE_PACKAGE_PATH }} publish
+      # - name: Publish
+      #   uses: JS-DevTools/npm-publish@v3
+      #   id: publish
+      #   with:
+      #     token: ${{ secrets.NPM_TOKEN }}
+      #     package: ${{ env.RELEASE_PACKAGE_PATH }}/package.json
+      #     access: "public"
+      # - if: ${{ steps.publish.outputs.type }}
+      #   run: echo "Version increased!"
 
   auto-tagging:
     name: Bump version after deployment
