@@ -55,7 +55,7 @@ jobs:
 
       - name: Build
         run: |
-          yarn --cwd ${{ env.RELEASE_PACKAGE_PATH }} publish
+          yarn publish ${{ env.RELEASE_PACKAGE_PATH }} --access public
       # - name: Publish
       #   uses: JS-DevTools/npm-publish@v3
       #   id: publish
