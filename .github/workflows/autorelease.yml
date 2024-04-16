@@ -53,18 +53,9 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Build
+      - name: Publish
         run: |
           yarn publish ${{ env.RELEASE_PACKAGE_PATH }} --access public
-      # - name: Publish
-      #   uses: JS-DevTools/npm-publish@v3
-      #   id: publish
-      #   with:
-      #     token: ${{ secrets.NPM_TOKEN }}
-      #     package: ${{ env.RELEASE_PACKAGE_PATH }}/package.json
-      #     access: "public"
-      # - if: ${{ steps.publish.outputs.type }}
-      #   run: echo "Version increased!"
 
   auto-tagging:
     name: Bump version after deployment
