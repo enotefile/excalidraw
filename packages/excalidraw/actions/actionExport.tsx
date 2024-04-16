@@ -1,4 +1,4 @@
-import { questionCircle, saveAs } from "../components/icons";
+import { ExportIcon, questionCircle, saveAs } from "../components/icons";
 import { ProjectName } from "../components/ProjectName";
 import { ToolButton } from "../components/ToolButton";
 import { Tooltip } from "../components/Tooltip";
@@ -22,6 +22,7 @@ import "../components/ToolIcon.scss";
 
 export const actionChangeProjectName = register({
   name: "changeProjectName",
+  label: "labels.fileTitle",
   trackEvent: false,
   perform: (_elements, appState, value) => {
     return { appState: { ...appState, name: value }, commitToHistory: false };
@@ -38,6 +39,7 @@ export const actionChangeProjectName = register({
 
 export const actionChangeExportScale = register({
   name: "changeExportScale",
+  label: "imageExportDialog.scale",
   trackEvent: { category: "export", action: "scale" },
   perform: (_elements, appState, value) => {
     return {
@@ -88,6 +90,7 @@ export const actionChangeExportScale = register({
 
 export const actionChangeExportBackground = register({
   name: "changeExportBackground",
+  label: "imageExportDialog.label.withBackground",
   trackEvent: { category: "export", action: "toggleBackground" },
   perform: (_elements, appState, value) => {
     return {
@@ -107,6 +110,7 @@ export const actionChangeExportBackground = register({
 
 export const actionChangeExportEmbedScene = register({
   name: "changeExportEmbedScene",
+  label: "imageExportDialog.tooltip.embedScene",
   trackEvent: { category: "export", action: "embedScene" },
   perform: (_elements, appState, value) => {
     return {
@@ -129,6 +133,8 @@ export const actionChangeExportEmbedScene = register({
 
 export const actionSaveToActiveFile = register({
   name: "saveToActiveFile",
+  label: "buttons.save",
+  icon: ExportIcon,
   trackEvent: { category: "export" },
   predicate: (elements, appState, props, app) => {
     return (
@@ -182,6 +188,8 @@ export const actionSaveToActiveFile = register({
 
 export const actionSaveFileToDisk = register({
   name: "saveFileToDisk",
+  label: "exportDialog.disk_title",
+  icon: ExportIcon,
   viewMode: true,
   trackEvent: { category: "export" },
   perform: async (elements, appState, value, app) => {
@@ -231,6 +239,7 @@ export const actionSaveFileToDisk = register({
 
 export const actionLoadScene = register({
   name: "loadScene",
+  label: "buttons.load",
   trackEvent: { category: "export" },
   predicate: (elements, appState, props, app) => {
     return (
@@ -268,6 +277,7 @@ export const actionLoadScene = register({
 
 export const actionExportWithDarkMode = register({
   name: "exportWithDarkMode",
+  label: "imageExportDialog.label.darkMode",
   trackEvent: { category: "export", action: "toggleTheme" },
   perform: (_elements, appState, value) => {
     return {

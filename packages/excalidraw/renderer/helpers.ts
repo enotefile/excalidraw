@@ -1,9 +1,7 @@
 import { StaticCanvasAppState, AppState, CanvasSize } from "../types";
-
 import { StaticCanvasRenderConfig } from "../scene/types";
-
-import { THEME_FILTER } from "../constants";
 import { NonDeletedExcalidrawElement } from "../element/types";
+import { THEME, THEME_FILTER } from "../constants";
 
 export const fillCircle = (
   context: CanvasRenderingContext2D,
@@ -54,7 +52,7 @@ export const bootstrapCanvas = ({
   context.setTransform(1, 0, 0, 1, 0, 0);
   context.scale(scale, scale);
 
-  if (isExporting && theme === "dark") {
+  if (isExporting && theme === THEME.DARK) {
     context.filter = THEME_FILTER;
   }
 
