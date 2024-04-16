@@ -29,7 +29,7 @@ jobs:
           yarn
           yarn --cwd ${{ env.RELEASE_PACKAGE_PATH }} build:esm
 
-      - name: Get next version (dry run)
+      - name: Get next version
         uses: anothrNick/github-tag-action@1.64.0
         id: get-next-version
         env:
@@ -37,11 +37,17 @@ jobs:
           INITIAL_VERSION: 0.17.17
           DEFAULT_BUMP: "patch"
 
-      - uses: JS-DevTools/npm-publish@v3
+      - name: Increase version from package.json
+        uses: cschleiden/replace-tokens@v1
+        with:
+          tokenPrefix: "#{"
+          tokenSuffix: "}#"
+          files: '["${{ env.RELEASE_PACKAGE_PATH }}/package.json"]'
+        env:
+          version: ${{ steps.get-next-version.outputs.new_tag }}
+
+      - name: Publish
+        uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_TOKEN }}
           package: ${{ env.RELEASE_PACKAGE_PATH }}
-
-      - name: Publish
-        run: |
-          yarn --cwd ${{ env.RELEASE_PACKAGE_PATH }} publish
