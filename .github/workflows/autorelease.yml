@@ -26,6 +26,7 @@ jobs:
 
       - name: Build
         run: |
+          yarn
           yarn --cwd ${{ env.RELEASE_PACKAGE_PATH }} build:esm
 
       - name: Get next version (dry run)
@@ -43,4 +44,4 @@ jobs:
 
       - name: Publish
         run: |
-          npm publish
+          yarn --cwd ${{ env.RELEASE_PACKAGE_PATH }} publish
