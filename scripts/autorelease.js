@@ -37,19 +37,19 @@ exec(`git diff --name-only HEAD^ HEAD`, async (error, stdout, stderr) => {
     core.setOutput("result", ":warning: Package couldn't be published!");
     process.exit(1);
   }
-  const changedFiles = stdout.trim().split("\n");
+  // const changedFiles = stdout.trim().split("\n");
 
-  const excalidrawPackageFiles = changedFiles.filter((file) => {
-    return (
-      file.indexOf("packages/excalidraw") >= 0 ||
-      file.indexOf("buildPackage.js") > 0
-    );
-  });
-  if (!excalidrawPackageFiles.length) {
-    console.info("Skipping release as no valid diff found");
-    core.setOutput("result", "Skipping release as no valid diff found");
-    process.exit(0);
-  }
+  // const excalidrawPackageFiles = changedFiles.filter((file) => {
+  //   return (
+  //     file.indexOf("packages/excalidraw") >= 0 ||
+  //     file.indexOf("buildPackage.js") > 0
+  //   );
+  // });
+  // if (!excalidrawPackageFiles.length) {
+  //   console.info("Skipping release as no valid diff found");
+  //   core.setOutput("result", "Skipping release as no valid diff found");
+  //   process.exit(0);
+  // }
 
   // update package.json
   let version = `${pkg.version}-${getShortCommitHash()}`;
