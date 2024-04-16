@@ -9,7 +9,7 @@ on:
       - release
 
 jobs:
-  Auto-release:
+  auto-release:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,18 +24,14 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
 
-      - name: Build
-        run: |
-          yarn
-          yarn --cwd ${{ env.RELEASE_PACKAGE_PATH }} build:esm
-
-      - name: Get next version
+      - name: Get next version (dry run)
         uses: anothrNick/github-tag-action@1.64.0
         id: get-next-version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INITIAL_VERSION: 0.17.17
           DEFAULT_BUMP: "patch"
+          DRY_RUN: true
 
       - name: Increase version from package.json
         uses: cschleiden/replace-tokens@v1
@@ -46,8 +42,29 @@ jobs:
         env:
           version: ${{ steps.get-next-version.outputs.new_tag }}
 
+      - name: Build
+        run: |
+          yarn
+          yarn --cwd ${{ env.RELEASE_PACKAGE_PATH }} build:esm
+
       - name: Publish
         uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_TOKEN }}
           package: ${{ env.RELEASE_PACKAGE_PATH }}
+
+  auto-tagging:
+    name: Bump version after deployment
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: [auto-release]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.64.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          INITIAL_VERSION: 0.17.17
+          DEFAULT_BUMP: "patch"
