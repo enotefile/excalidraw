@@ -1,0 +1,44 @@
+name: Auto release excalidraw
+
+env:
+  RELEASE_PACKAGE_PATH: "./packages/excalidraw"
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  Auto-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
+
+      - name: Get next version (dry run)
+        uses: anothrNick/github-tag-action@1.64.0
+        id: get-next-version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INITIAL_VERSION: 0.17.17
+          MINOR_STRING_TOKEN: "feat:"
+          PATCH_STRING_TOKEN: "chore:"
+
+      - uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          package: ${{ env.RELEASE_PACKAGE_PATH }}
+
+      - name: Release
+        run: |
+          yarn --cwd ${{ env.RELEASE_PACKAGE_PATH }} build:esm
+          npm publish
