@@ -85,6 +85,7 @@ import {
   isIOS,
   supportsResizeObserver,
   backgroundImageScaleValue,
+  TEXT_ALIGN,
 } from "../constants";
 import { ExportedElements, exportCanvas, loadFromBlob } from "../data";
 import Library, { distributeLibraryItemsOnSquareGrid } from "../data/library";
@@ -4730,12 +4731,24 @@ class App extends React.Component<AppProps, AppState> {
       const minHeight = getApproxMinLineHeight(fontSize, lineHeight);
       const newHeight = Math.max(container.height, minHeight);
       const newWidth = Math.max(container.width, minWidth);
-      mutateElement(container, {
-        height: newHeight,
-        width: newWidth,
-        x: sceneX,
-        y: sceneY,
-      });
+
+      if (this.state.currentItemTextAlign === TEXT_ALIGN.LEFT) {
+        mutateElement(container, {
+          height: newHeight,
+          width: newWidth,
+          x: sceneX,
+        });
+      } else if (this.state.currentItemTextAlign === TEXT_ALIGN.CENTER) {
+        mutateElement(container, { height: newHeight, width: newWidth });
+        sceneX = container.x + newWidth / 2;
+        sceneY = container.y + newHeight / 2;
+      } else {
+        mutateElement(container, {
+          height: newHeight,
+          width: newWidth,
+          x: sceneX - newWidth,
+        });
+      }
 
       if (parentCenterPosition) {
         parentCenterPosition = this.getTextWysiwygSnappedToCenterPosition(
