@@ -4639,8 +4639,8 @@ class App extends React.Component<AppProps, AppState> {
     });
 
     if (!container) {
-      let containerWidth = 250 * backgroundImageScaleValue;
-      let containerHeight = 25 * backgroundImageScaleValue;
+      let containerWidth = 300 * backgroundImageScaleValue;
+      let containerHeight = 20 * backgroundImageScaleValue;
 
       container = convertToExcalidrawElements([
         {
@@ -4663,6 +4663,7 @@ class App extends React.Component<AppProps, AppState> {
           },
         },
       ])[0] as ExcalidrawTextContainer;
+
       const frameIndex = topLayerFrame
         ? this.scene.getElementIndex(topLayerFrame.id)
         : 2;
@@ -4729,9 +4730,13 @@ class App extends React.Component<AppProps, AppState> {
       const minHeight = getApproxMinLineHeight(fontSize, lineHeight);
       const newHeight = Math.max(container.height, minHeight);
       const newWidth = Math.max(container.width, minWidth);
-      mutateElement(container, { height: newHeight, width: newWidth });
-      sceneX = container.x + newWidth / 2;
-      sceneY = container.y + newHeight / 2;
+      mutateElement(container, {
+        height: newHeight,
+        width: newWidth,
+        x: sceneX,
+        y: sceneY,
+      });
+
       if (parentCenterPosition) {
         parentCenterPosition = this.getTextWysiwygSnappedToCenterPosition(
           sceneX,
@@ -4761,12 +4766,8 @@ class App extends React.Component<AppProps, AppState> {
           text: "",
           fontSize,
           fontFamily,
-          textAlign: parentCenterPosition
-            ? "center"
-            : this.state.currentItemTextAlign,
-          verticalAlign: parentCenterPosition
-            ? VERTICAL_ALIGN.MIDDLE
-            : DEFAULT_VERTICAL_ALIGN,
+          textAlign: this.state.currentItemTextAlign,
+          verticalAlign: DEFAULT_VERTICAL_ALIGN,
           containerId: shouldBindToContainer ? container?.id : undefined,
           groupIds: container?.groupIds ?? [],
           lineHeight,
