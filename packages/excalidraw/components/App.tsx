@@ -4736,7 +4736,7 @@ class App extends React.Component<AppProps, AppState> {
         mutateElement(container, {
           height: newHeight,
           width: newWidth,
-          x: sceneX,
+          x: sceneX - 5,
         });
       } else if (this.state.currentItemTextAlign === TEXT_ALIGN.CENTER) {
         mutateElement(container, { height: newHeight, width: newWidth });
@@ -4746,7 +4746,7 @@ class App extends React.Component<AppProps, AppState> {
         mutateElement(container, {
           height: newHeight,
           width: newWidth,
-          x: sceneX - newWidth,
+          x: sceneX - newWidth + 5,
         });
       }
 
