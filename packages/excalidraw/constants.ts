@@ -325,9 +325,9 @@ export const ROUGHNESS = {
 } as const;
 
 export const STROKE_WIDTH = {
-  thin: 0.3 * backgroundImageScaleValue,
-  bold: 0.8 * backgroundImageScaleValue,
-  extraBold: 1.3 * backgroundImageScaleValue,
+  thin: 0.65 * backgroundImageScaleValue,
+  bold: 0.7 * backgroundImageScaleValue,
+  extraBold: 0.75 * backgroundImageScaleValue,
 } as const;
 
 export const DEFAULT_ELEMENT_PROPS: {
