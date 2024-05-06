@@ -624,25 +624,25 @@ export const actionChangeFontSize = register({
         group="font-size"
         options={[
           {
-            value: 14 * backgroundImageScaleValue,
+            value: 12 * backgroundImageScaleValue,
             text: t("labels.small"),
             icon: FontSizeSmallIcon,
             testId: "fontSize-small",
           },
           {
-            value: 18 * backgroundImageScaleValue,
+            value: 16 * backgroundImageScaleValue,
             text: t("labels.medium"),
             icon: FontSizeMediumIcon,
             testId: "fontSize-medium",
           },
           {
-            value: 22 * backgroundImageScaleValue,
+            value: 20 * backgroundImageScaleValue,
             text: t("labels.large"),
             icon: FontSizeLargeIcon,
             testId: "fontSize-large",
           },
           {
-            value: 26 * backgroundImageScaleValue,
+            value: 24 * backgroundImageScaleValue,
             text: t("labels.veryLarge"),
             icon: FontSizeExtraLargeIcon,
             testId: "fontSize-veryLarge",
