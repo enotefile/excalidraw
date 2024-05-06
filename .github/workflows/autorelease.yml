@@ -29,7 +29,7 @@ jobs:
         id: get-next-version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          INITIAL_VERSION: 0.17.17
+          INITIAL_VERSION: 0.17.23
           DEFAULT_BUMP: "patch"
           DRY_RUN: true
 
