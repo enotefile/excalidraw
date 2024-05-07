@@ -9267,11 +9267,6 @@ class App extends React.Component<AppProps, AppState> {
       includeLockedElements: true,
     });
 
-    // Don't allow users to right-click on locked elements.
-    if (element?.locked) {
-      return;
-    }
-
     const selectedElements = this.scene.getSelectedElements(this.state);
     const isHittingCommonBoundBox =
       this.isHittingCommonBoundingBoxOfSelectedElements(
@@ -9279,7 +9274,11 @@ class App extends React.Component<AppProps, AppState> {
         selectedElements,
       );
 
-    const type = element || isHittingCommonBoundBox ? "element" : "canvas";
+    const type: "canvas" | "element" | "locked" = element?.locked
+      ? "locked"
+      : element || isHittingCommonBoundBox
+      ? "element"
+      : "canvas";
 
     const container = this.excalidrawContainerRef.current!;
     const { top: offsetTop, left: offsetLeft } =
@@ -9549,7 +9548,7 @@ class App extends React.Component<AppProps, AppState> {
   };
 
   private getContextMenuItems = (
-    type: "canvas" | "element",
+    type: "canvas" | "element" | "locked",
   ): ContextMenuItems => {
     const options: ContextMenuItems = [];
 
@@ -9558,7 +9557,13 @@ class App extends React.Component<AppProps, AppState> {
     // canvas contextMenu
     // -------------------------------------------------------------------------
 
-    if (type === "canvas") {
+    if (type === "locked") {
+      return [actionPaste];
+    }
+
+    // canvas contextMenu
+    // -------------------------------------------------------------------------
+    else if (type === "canvas") {
       if (this.state.viewModeEnabled) {
         return [
           ...options,
