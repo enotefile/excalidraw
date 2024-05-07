@@ -26,7 +26,9 @@ import {
   defaultLang,
   TTDDialog,
   TTDDialogTrigger,
-} from "../packages/excalidraw/index";
+  StoreAction,
+  reconcileElements,
+} from "../packages/excalidraw";
 import {
   AppState,
   ExcalidrawImperativeAPI,
@@ -107,8 +109,7 @@ import { ShareDialog, shareDialogStateAtom } from "./share/ShareDialog";
 import { fixCanvasSize } from "../packages/excalidraw/element/fixCanvasSize";
 import { base64BackgroundImage } from "../packages/excalidraw/element/base64BackgroundImage";
 import {
-  RemoteExcalidrawElement,
-  reconcileElements,
+  RemoteExcalidrawElement
 } from "../packages/excalidraw/data/reconcile";
 import {
   CommandPalette,
@@ -446,7 +447,7 @@ const ExcalidrawWrapper = () => {
             excalidrawAPI.updateScene({
               ...data.scene,
               ...restore(data.scene, null, null, { repairBindings: true }),
-              commitToHistory: true,
+              storeAction: StoreAction.CAPTURE,
             });
           }
         });
@@ -477,6 +478,7 @@ const ExcalidrawWrapper = () => {
           setLangCode(langCode);
           excalidrawAPI.updateScene({
             ...localDataState,
+            storeAction: StoreAction.UPDATE,
           });
           LibraryIndexedDBAdapter.load().then((data) => {
             if (data) {
@@ -612,6 +614,7 @@ const ExcalidrawWrapper = () => {
           if (didChange) {
             excalidrawAPI.updateScene({
               elements,
+              storeAction: StoreAction.UPDATE,
             });
           }
         }

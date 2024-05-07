@@ -1,6 +1,6 @@
 {
   "name": "@notud/excalidraw",
-  "version": "#{version}#",
+  "version": "0.17.26",
   "main": "./dist/prod/index.js",
   "type": "module",
   "module": "./dist/prod/index.js",

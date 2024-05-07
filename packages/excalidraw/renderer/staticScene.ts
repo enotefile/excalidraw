@@ -285,7 +285,7 @@ const _renderStaticScene = ({
           );
         }
 
-        const boundTextElement = getBoundTextElement(element, allElementsMap);
+        const boundTextElement = getBoundTextElement(element, elementsMap);
         if (boundTextElement) {
           renderElement(
             boundTextElement,

@@ -19,13 +19,17 @@ import { nativeFileSystemSupported } from "../data/filesystem";
 import { Theme } from "../element/types";
 
 import "../components/ToolIcon.scss";
+import { StoreAction } from "../store";
 
 export const actionChangeProjectName = register({
   name: "changeProjectName",
   label: "labels.fileTitle",
   trackEvent: false,
   perform: (_elements, appState, value) => {
-    return { appState: { ...appState, name: value }, commitToHistory: false };
+    return {
+      appState: { ...appState, name: value },
+      storeAction: StoreAction.NONE,
+    };
   },
   PanelComponent: ({ appState, updateData, appProps, data, app }) => (
     <ProjectName
@@ -44,7 +48,7 @@ export const actionChangeExportScale = register({
   perform: (_elements, appState, value) => {
     return {
       appState: { ...appState, exportScale: value },
-      commitToHistory: false,
+      storeAction: StoreAction.NONE,
     };
   },
   PanelComponent: ({ elements: allElements, appState, updateData }) => {
@@ -95,7 +99,7 @@ export const actionChangeExportBackground = register({
   perform: (_elements, appState, value) => {
     return {
       appState: { ...appState, exportBackground: value },
-      commitToHistory: false,
+      storeAction: StoreAction.NONE,
     };
   },
   PanelComponent: ({ appState, updateData }) => (
@@ -115,7 +119,7 @@ export const actionChangeExportEmbedScene = register({
   perform: (_elements, appState, value) => {
     return {
       appState: { ...appState, exportEmbedScene: value },
-      commitToHistory: false,
+      storeAction: StoreAction.NONE,
     };
   },
   PanelComponent: ({ appState, updateData }) => (
@@ -157,7 +161,7 @@ export const actionSaveToActiveFile = register({
         : await saveAsJSON(elements, appState, app.files, app.getName());
 
       return {
-        commitToHistory: false,
+        storeAction: StoreAction.NONE,
         appState: {
           ...appState,
           fileHandle,
@@ -179,7 +183,7 @@ export const actionSaveToActiveFile = register({
       } else {
         console.warn(error);
       }
-      return { commitToHistory: false };
+      return { storeAction: StoreAction.NONE };
     }
   },
   keyTest: (event) =>
@@ -204,7 +208,7 @@ export const actionSaveFileToDisk = register({
         app.getName(),
       );
       return {
-        commitToHistory: false,
+        storeAction: StoreAction.NONE,
         appState: {
           ...appState,
           openDialog: null,
@@ -218,7 +222,7 @@ export const actionSaveFileToDisk = register({
       } else {
         console.warn(error);
       }
-      return { commitToHistory: false };
+      return { storeAction: StoreAction.NONE };
     }
   },
   keyTest: (event) =>
@@ -257,7 +261,7 @@ export const actionLoadScene = register({
         elements: loadedElements,
         appState: loadedAppState,
         files,
-        commitToHistory: true,
+        storeAction: StoreAction.CAPTURE,
       };
     } catch (error: any) {
       if (error?.name === "AbortError") {
@@ -268,7 +272,7 @@ export const actionLoadScene = register({
         elements,
         appState: { ...appState, errorMessage: error.message },
         files: app.files,
-        commitToHistory: false,
+        storeAction: StoreAction.NONE,
       };
     }
   },
@@ -282,7 +286,7 @@ export const actionExportWithDarkMode = register({
   perform: (_elements, appState, value) => {
     return {
       appState: { ...appState, exportWithDarkMode: value },
-      commitToHistory: false,
+      storeAction: StoreAction.NONE,
     };
   },
   PanelComponent: ({ appState, updateData }) => (
