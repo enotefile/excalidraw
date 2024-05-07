@@ -12,12 +12,13 @@ import { arrayToMap } from "../utils";
 import { CODES, KEYS } from "../keys";
 import { getCommonBoundingBox } from "../element/bounds";
 import {
-  bindOrUnbindSelectedElements,
+  bindOrUnbindLinearElements,
   isBindingEnabled,
-  unbindLinearElements,
 } from "../element/binding";
 import { updateFrameMembershipOfSelectedElements } from "../frame";
 import { flipHorizontal, flipVertical } from "../components/icons";
+import { StoreAction } from "../store";
+import { isLinearElement } from "../element/typeChecks";
 
 export const actionFlipHorizontal = register({
   name: "flipHorizontal",
@@ -38,7 +39,7 @@ export const actionFlipHorizontal = register({
         app,
       ),
       appState,
-      commitToHistory: true,
+      storeAction: StoreAction.CAPTURE,
     };
   },
   keyTest: (event) => event.shiftKey && event.code === CODES.H,
@@ -63,7 +64,7 @@ export const actionFlipVertical = register({
         app,
       ),
       appState,
-      commitToHistory: true,
+      storeAction: StoreAction.CAPTURE,
     };
   },
   keyTest: (event) =>
@@ -88,7 +89,6 @@ const flipSelectedElements = (
 
   const updatedElements = flipElements(
     selectedElements,
-    elements,
     elementsMap,
     appState,
     flipDirection,
@@ -104,7 +104,6 @@ const flipSelectedElements = (
 
 const flipElements = (
   selectedElements: NonDeleted<ExcalidrawElement>[],
-  elements: readonly ExcalidrawElement[],
   elementsMap: NonDeletedSceneElementsMap,
   appState: AppState,
   flipDirection: "horizontal" | "vertical",
@@ -118,13 +117,17 @@ const flipElements = (
     elementsMap,
     "nw",
     true,
+    true,
     flipDirection === "horizontal" ? maxX : minX,
     flipDirection === "horizontal" ? minY : maxY,
   );
 
-  isBindingEnabled(appState)
-    ? bindOrUnbindSelectedElements(selectedElements, app)
-    : unbindLinearElements(selectedElements, elementsMap);
+  bindOrUnbindLinearElements(
+    selectedElements.filter(isLinearElement),
+    app,
+    isBindingEnabled(appState),
+    [],
+  );
 
   return selectedElements;
 };
