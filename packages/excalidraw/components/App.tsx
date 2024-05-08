@@ -3369,6 +3369,23 @@ class App extends React.Component<AppProps, AppState> {
             y: currentY,
           });
 
+          let containerWidth = 300 * backgroundImageScaleValue;
+          const container = convertToExcalidrawElements([
+            {
+              type: "rectangle",
+              opacity: 100,
+              x: x,
+              y: currentY,
+              width: containerWidth,
+              strokeWidth: 0,
+              strokeColor: "transparent",
+              backgroundColor: "transparent",
+              frameId: topLayerFrame ? topLayerFrame.id : null,
+            },
+          ])[0] as ExcalidrawTextContainer;
+
+          this.scene.insertElement(container);
+
           const element = newTextElement({
             ...textElementProps,
             x,
@@ -3376,7 +3393,24 @@ class App extends React.Component<AppProps, AppState> {
             text,
             lineHeight,
             frameId: topLayerFrame ? topLayerFrame.id : null,
+            containerId: container?.id,
           });
+
+          const total = element.width * element.height;
+          mutateElement(container, {
+            boundElements: (container.boundElements || []).concat({
+              type: "text",
+              id: element.id,
+            }),
+            width: containerWidth,
+            height: total / containerWidth,
+          });
+
+          mutateElement(element, {
+            width: containerWidth,
+            height: total / containerWidth,
+          });
+
           acc.push(element);
           currentY += element.height + LINE_GAP;
         } else {
@@ -3406,6 +3440,12 @@ class App extends React.Component<AppProps, AppState> {
         Object.fromEntries(textElements.map((el) => [el.id, true])),
         this.state,
       ),
+    });
+
+    textElements.forEach((textElement) => {
+      this.handleTextWysiwyg(textElement, {
+        isExistingElement: false,
+      });
     });
 
     if (
