@@ -3354,103 +3354,63 @@ class App extends React.Component<AppProps, AppState> {
       locked: false,
     };
 
-    const LINE_GAP = 10;
-    let currentY = y;
+    const lineHeight = getDefaultLineHeight(textElementProps.fontFamily);
 
-    const lines = isPlainPaste ? [text] : text.split("\n");
-    const textElements = lines.reduce(
-      (acc: ExcalidrawTextElement[], line, idx) => {
-        const text = line.trim();
-
-        const lineHeight = getDefaultLineHeight(textElementProps.fontFamily);
-        if (text.length) {
-          const topLayerFrame = this.getTopLayerFrameAtSceneCoords({
-            x,
-            y: currentY,
-          });
-
-          let containerWidth = 300 * backgroundImageScaleValue;
-          const container = convertToExcalidrawElements([
-            {
-              type: "rectangle",
-              opacity: 100,
-              x: x,
-              y: currentY,
-              width: containerWidth,
-              strokeWidth: 0,
-              strokeColor: "transparent",
-              backgroundColor: "transparent",
-              frameId: topLayerFrame ? topLayerFrame.id : null,
-            },
-          ])[0] as ExcalidrawTextContainer;
-
-          this.scene.insertElement(container);
-
-          const element = newTextElement({
-            ...textElementProps,
-            x,
-            y: currentY,
-            text,
-            lineHeight,
-            frameId: topLayerFrame ? topLayerFrame.id : null,
-            containerId: container?.id,
-          });
-
-          const total = element.width * element.height;
-          mutateElement(container, {
-            boundElements: (container.boundElements || []).concat({
-              type: "text",
-              id: element.id,
-            }),
-            width: containerWidth,
-            height: total / containerWidth,
-          });
-
-          mutateElement(element, {
-            width: containerWidth,
-            height: total / containerWidth,
-          });
-
-          acc.push(element);
-          currentY += element.height + LINE_GAP;
-        } else {
-          const prevLine = lines[idx - 1]?.trim();
-          // add paragraph only if previous line was not empty, IOW don't add
-          // more than one empty line
-          if (prevLine) {
-            currentY +=
-              getLineHeightInPx(textElementProps.fontSize, lineHeight) +
-              LINE_GAP;
-          }
-        }
-
-        return acc;
-      },
-      [],
-    );
-
-    if (textElements.length === 0) {
-      return;
-    }
-
-    this.scene.insertElements(textElements);
-
-    this.setState({
-      selectedElementIds: makeNextSelectedElementIds(
-        Object.fromEntries(textElements.map((el) => [el.id, true])),
-        this.state,
-      ),
+    const topLayerFrame = this.getTopLayerFrameAtSceneCoords({
+      x,
+      y,
     });
 
-    textElements.forEach((textElement) => {
-      this.handleTextWysiwyg(textElement, {
-        isExistingElement: false,
-      });
+    let containerWidth = 300 * backgroundImageScaleValue;
+    const container = convertToExcalidrawElements([
+      {
+        type: "rectangle",
+        opacity: 100,
+        x,
+        y,
+        width: containerWidth,
+        strokeWidth: 0,
+        strokeColor: "transparent",
+        backgroundColor: "transparent",
+        frameId: topLayerFrame ? topLayerFrame.id : null,
+      },
+    ])[0] as ExcalidrawTextContainer;
+
+    this.scene.insertElement(container);
+
+    const element = newTextElement({
+      ...textElementProps,
+      x,
+      y,
+      text,
+      lineHeight,
+      frameId: topLayerFrame ? topLayerFrame.id : null,
+      containerId: container?.id,
+    });
+
+    const total = element.width * element.height;
+    mutateElement(container, {
+      boundElements: (container.boundElements || []).concat({
+        type: "text",
+        id: element.id,
+      }),
+      width: containerWidth,
+      height: total / containerWidth,
+    });
+
+    mutateElement(element, {
+      width: containerWidth,
+      height: total / containerWidth,
+    });
+
+    this.scene.insertElement(element);
+
+    this.handleTextWysiwyg(element, {
+      isExistingElement: false,
     });
 
     if (
       !isPlainPaste &&
-      textElements.length > 1 &&
       PLAIN_PASTE_TOAST_SHOWN === false &&
       !this.device.editor.isMobile
     ) {
