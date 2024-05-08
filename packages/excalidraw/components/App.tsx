@@ -4708,43 +4708,6 @@ class App extends React.Component<AppProps, AppState> {
   }) => {
     let shouldBindToContainer = false;
 
-    const topLayerFrame = this.getTopLayerFrameAtSceneCoords({
-      x: sceneX,
-      y: sceneY,
-    });
-
-    if (!container) {
-      let containerWidth = 300 * backgroundImageScaleValue;
-      let containerHeight = 20 * backgroundImageScaleValue;
-
-      container = convertToExcalidrawElements([
-        {
-          type: "rectangle",
-          opacity: 100,
-          x: sceneX - containerWidth / 2,
-          y: sceneY - containerHeight / 2,
-          width: containerWidth,
-          height: containerHeight,
-          strokeWidth: 0,
-          strokeColor: "transparent",
-          backgroundColor: "transparent",
-          frameId: topLayerFrame ? topLayerFrame.id : null,
-          label: {
-            x: 0,
-            y: 0,
-            text: "",
-            textAlign: "left",
-            verticalAlign: "top",
-          },
-        },
-      ])[0] as ExcalidrawTextContainer;
-
-      const frameIndex = topLayerFrame
-        ? this.scene.getElementIndex(topLayerFrame.id)
-        : 2;
-      this.scene.insertElementAtIndex(container, frameIndex);
-    }
-
     let parentCenterPosition =
       insertAtParentCenter &&
       this.getTextWysiwygSnappedToCenterPosition(
@@ -4805,24 +4768,9 @@ class App extends React.Component<AppProps, AppState> {
       const minHeight = getApproxMinLineHeight(fontSize, lineHeight);
       const newHeight = Math.max(container.height, minHeight);
       const newWidth = Math.max(container.width, minWidth);
-
-      if (this.state.currentItemTextAlign === TEXT_ALIGN.LEFT) {
-        mutateElement(container, {
-          height: newHeight,
-          width: newWidth,
-          x: sceneX - 5,
-        });
-      } else if (this.state.currentItemTextAlign === TEXT_ALIGN.CENTER) {
-        mutateElement(container, { height: newHeight, width: newWidth });
-        sceneX = container.x + newWidth / 2;
-        sceneY = container.y + newHeight / 2;
-      } else {
-        mutateElement(container, {
-          height: newHeight,
-          width: newWidth,
-          x: sceneX - newWidth + 5,
-        });
-      }
+      mutateElement(container, { height: newHeight, width: newWidth });
+      sceneX = container.x + newWidth / 2;
+      sceneY = container.y + newHeight / 2;
 
       if (parentCenterPosition) {
         parentCenterPosition = this.getTextWysiwygSnappedToCenterPosition(
@@ -4833,6 +4781,11 @@ class App extends React.Component<AppProps, AppState> {
         );
       }
     }
+
+    const topLayerFrame = this.getTopLayerFrameAtSceneCoords({
+      x: sceneX,
+      y: sceneY,
+    });
 
     const element = existingTextElement
       ? existingTextElement
@@ -4853,12 +4806,17 @@ class App extends React.Component<AppProps, AppState> {
           text: "",
           fontSize,
           fontFamily,
-          textAlign: this.state.currentItemTextAlign,
-          verticalAlign: DEFAULT_VERTICAL_ALIGN,
+          textAlign: parentCenterPosition
+            ? "center"
+            : this.state.currentItemTextAlign,
+          verticalAlign: parentCenterPosition
+            ? VERTICAL_ALIGN.MIDDLE
+            : DEFAULT_VERTICAL_ALIGN,
           containerId: shouldBindToContainer ? container?.id : undefined,
           groupIds: container?.groupIds ?? [],
           lineHeight,
           angle: container?.angle ?? 0,
+          frameId: topLayerFrame ? topLayerFrame.id : null,
         });
 
     if (!existingTextElement && shouldBindToContainer && container) {
