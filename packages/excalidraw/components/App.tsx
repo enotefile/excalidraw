@@ -189,7 +189,7 @@ import {
   isSelectedViaGroup,
   selectGroupsForSelectedElements,
 } from "../groups";
-import { History } from "../history";
+import { History, HistoryChangedEvent } from "../history";
 import { defaultLang, getLanguage, languages, setLanguage, t } from "../i18n";
 import {
   CODES,
@@ -252,6 +252,7 @@ import {
   UnsubscribeCallback,
   EmbedsValidationStatus,
   ElementsPendingErasure,
+  ExcalidrawInitialDataState,
 } from "../types";
 import {
   debounce,
@@ -427,6 +428,7 @@ import {
   isPointHittingLinkIcon,
 } from "./hyperlink/helpers";
 import { getShortcutFromShortcutName } from "../actions/shortcuts";
+import { ImportedDataState } from "../data/types";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -681,6 +683,7 @@ class App extends React.Component<AppProps, AppState> {
         addFiles: this.addFiles,
         resetScene: this.resetScene,
         getSceneElementsIncludingDeleted: this.getSceneElementsIncludingDeleted,
+        reloadData: this.reloadData,
         history: {
           clear: this.resetHistory,
         },
@@ -2356,6 +2359,49 @@ class App extends React.Component<AppProps, AppState> {
       storeAction: StoreAction.UPDATE,
     });
   };
+
+  public reloadData: ExcalidrawImperativeAPI["reloadData"] = withBatchedUpdates(
+    (reloadData: ImportedDataState) => {
+      const scene = restore(reloadData, null, null, { repairBindings: true });
+
+      scene.appState = {
+        ...scene.appState,
+        theme: this.props.theme || scene.appState.theme,
+        openSidebar: scene.appState?.openSidebar || this.state.openSidebar,
+        activeTool:
+          scene.appState.activeTool.type === "image"
+            ? { ...scene.appState.activeTool, type: "selection" }
+            : scene.appState.activeTool,
+        isLoading: false,
+        toast: this.state.toast,
+      };
+
+      if (reloadData?.scrollToContent) {
+        scene.appState = {
+          ...scene.appState,
+          ...calculateScrollCenter(scene.elements, {
+            ...scene.appState,
+            width: this.state.width,
+            height: this.state.height,
+            offsetTop: this.state.offsetTop,
+            offsetLeft: this.state.offsetLeft,
+          }),
+        };
+      }
+
+      this.fonts.loadFontsForElements(scene.elements);
+
+      this.resetStore();
+      this.resetHistory();
+      this.history.onHistoryChangedEmitter.trigger(
+        new HistoryChangedEvent(true, true),
+      );
+      this.syncActionResult({
+        ...scene,
+        storeAction: StoreAction.UPDATE,
+      });
+    },
+  );
 
   private isMobileBreakpoint = (width: number, height: number) => {
     return (
