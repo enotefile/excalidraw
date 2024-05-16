@@ -48,7 +48,6 @@ export function adjustAppStateForCanvasSize(
           strokeStyle: "solid",
           roughness: 0,
           opacity: 100,
-          // strokeSharpness: "sharp",
           locked: true,
           width: canvasSize.width,
           height: canvasSize.height,
@@ -94,8 +93,3 @@ function updateCanvasSize(
     },
   };
 }
-
-// function round(num: number, decimalPlaces = 0) {
-//   const p = Math.pow(10, decimalPlaces);
-//   return Math.round(num * p) / p;
-// }
