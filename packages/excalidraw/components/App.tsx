@@ -2396,6 +2396,8 @@ class App extends React.Component<AppProps, AppState> {
       this.history.onHistoryChangedEmitter.trigger(
         new HistoryChangedEvent(true, true),
       );
+      this.imageCache.clear();
+
       this.syncActionResult({
         ...scene,
         storeAction: StoreAction.UPDATE,
