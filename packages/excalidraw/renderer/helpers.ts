@@ -1,6 +1,6 @@
-import { StaticCanvasAppState, AppState, CanvasSize } from "../types";
-import { StaticCanvasRenderConfig } from "../scene/types";
 import { NonDeletedExcalidrawElement } from "../element/types";
+import type { StaticCanvasAppState, AppState, CanvasSize } from "../types";
+import type { StaticCanvasRenderConfig } from "../scene/types";
 import { THEME, THEME_FILTER } from "../constants";
 
 export const fillCircle = (

@@ -1,4 +1,4 @@
-import { ExcalidrawImperativeAPI } from "@notud/excalidraw/dist/excalidraw/types";
+import type { ExcalidrawImperativeAPI } from "@notud/excalidraw/dist/excalidraw/types";
 import CustomFooter from "./CustomFooter";
 import type * as TExcalidraw from "@notud/excalidraw";
 

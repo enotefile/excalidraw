@@ -1,4 +1,4 @@
-import { AppClassProperties, AppState, Primitive } from "../types";
+import type { AppClassProperties, AppState, Primitive } from "../types";
 import {
   DEFAULT_ELEMENT_BACKGROUND_COLOR_PALETTE,
   DEFAULT_ELEMENT_BACKGROUND_PICKS,
@@ -75,7 +75,7 @@ import {
   isLinearElement,
   isUsingAdaptiveRadius,
 } from "../element/typeChecks";
-import {
+import type {
   Arrowhead,
   ExcalidrawElement,
   ExcalidrawLinearElement,
@@ -168,7 +168,7 @@ const offsetElementAfterFontResize = (
   prevElement: ExcalidrawTextElement,
   nextElement: ExcalidrawTextElement,
 ) => {
-  if (isBoundToContainer(nextElement)) {
+  if (isBoundToContainer(nextElement) || !nextElement.autoResize) {
     return nextElement;
   }
   return mutateElement(

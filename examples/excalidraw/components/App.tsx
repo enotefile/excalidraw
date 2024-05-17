@@ -12,9 +12,9 @@ import type * as TExcalidraw from "@notud/excalidraw";
 
 import { nanoid } from "nanoid";
 
+import type { ResolvablePromise } from "../utils";
 import {
   resolvablePromise,
-  ResolvablePromise,
   distance2d,
   fileOpen,
   withBatchedUpdates,

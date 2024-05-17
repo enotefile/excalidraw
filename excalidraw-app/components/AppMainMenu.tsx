@@ -1,5 +1,5 @@
 import React from "react";
-import { Theme } from "../../packages/excalidraw/element/types";
+import type { Theme } from "../../packages/excalidraw/element/types";
 import { MainMenu } from "../../packages/excalidraw/index";
 
 export const AppMainMenu: React.FC<{
