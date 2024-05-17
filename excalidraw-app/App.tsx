@@ -105,7 +105,7 @@ import Trans from "../packages/excalidraw/components/Trans";
 import { ShareDialog, shareDialogStateAtom } from "./share/ShareDialog";
 import { fixCanvasSize } from "../packages/excalidraw/element/fixCanvasSize";
 import { base64BackgroundImage } from "../packages/excalidraw/element/base64BackgroundImage";
-import { RemoteExcalidrawElement } from "../packages/excalidraw/data/reconcile";
+import type { RemoteExcalidrawElement } from "../packages/excalidraw/data/reconcile";
 import {
   CommandPalette,
   DEFAULT_CATEGORIES,
