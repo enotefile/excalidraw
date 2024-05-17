@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
-import {
+import type {
   ExcalidrawElement,
   ExcalidrawLinearElement,
   ExcalidrawTextElementWithContainer,
@@ -14,7 +14,7 @@ import * as InteractiveCanvas from "../renderer/interactiveScene";
 import { Keyboard, Pointer, UI } from "./helpers/ui";
 import { screen, render, fireEvent, GlobalTestState } from "./test-utils";
 import { API } from "../tests/helpers/api";
-import { Point } from "../types";
+import type { Point } from "../types";
 import { KEYS } from "../keys";
 import { LinearElementEditor } from "../element/linearElementEditor";
 import { queryByTestId, queryByText } from "@testing-library/react";
@@ -972,10 +972,10 @@ describe("Test Linear Elements", () => {
       ]);
       expect((h.elements[1] as ExcalidrawTextElementWithContainer).text)
         .toMatchInlineSnapshot(`
-          "Online whiteboard 
-          collaboration made 
-          easy"
-        `);
+        "Online whiteboard 
+        collaboration made 
+        easy"
+      `);
     });
 
     it("should bind text to arrow when clicked on arrow and enter pressed", async () => {
@@ -1006,10 +1006,10 @@ describe("Test Linear Elements", () => {
       ]);
       expect((h.elements[1] as ExcalidrawTextElementWithContainer).text)
         .toMatchInlineSnapshot(`
-          "Online whiteboard 
-          collaboration made 
-          easy"
-        `);
+        "Online whiteboard 
+        collaboration made 
+        easy"
+      `);
     });
 
     it("should not bind text to line when double clicked", async () => {

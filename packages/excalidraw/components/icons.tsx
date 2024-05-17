@@ -10,7 +10,7 @@ import React from "react";
 
 import oc from "open-color";
 import clsx from "clsx";
-import { Theme } from "../element/types";
+import type { Theme } from "../element/types";
 import { THEME } from "../constants";
 
 export const iconFillColor = (theme: Theme) => "var(--icon-fill-color)";
@@ -698,14 +698,18 @@ export const BringForwardIcon = createIcon(arrownNarrowUpJSX, tablerIconProps);
 
 export const SendBackwardIcon = createIcon(arrownNarrowUpJSX, {
   ...tablerIconProps,
-  transform: "rotate(180)",
+  style: {
+    transform: "rotate(180deg)",
+  },
 });
 
 export const BringToFrontIcon = createIcon(arrowBarToTopJSX, tablerIconProps);
 
 export const SendToBackIcon = createIcon(arrowBarToTopJSX, {
   ...tablerIconProps,
-  transform: "rotate(180)",
+  style: {
+    transform: "rotate(180deg)",
+  },
 });
 
 //
