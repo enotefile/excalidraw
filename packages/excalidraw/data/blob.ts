@@ -13,6 +13,7 @@ import { nativeFileSystemSupported } from "./filesystem";
 import { isValidExcalidrawData, isValidLibrary } from "./json";
 import { restore, restoreLibraryItems } from "./restore";
 import type { ImportedLibraryData } from "./types";
+import { Buffer } from "buffer";
 
 const parseFileContents = async (blob: Blob | File) => {
   let contents: string;
