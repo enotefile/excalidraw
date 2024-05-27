@@ -84,6 +84,7 @@ import {
   backgroundImageScaleValue,
   TEXT_ALIGN,
   DEFAULT_COLLISION_THRESHOLD,
+  DEFAULT_TEXT_ALIGN,
 } from "../constants";
 import type { ExportedElements } from "../data";
 import { exportCanvas, loadFromBlob } from "../data";
@@ -327,6 +328,8 @@ import {
   getLineHeightInPx,
   isMeasureTextSupported,
   isValidTextContainer,
+  measureText,
+  wrapText,
 } from "../element/textElement";
 import {
   showHyperlinkTooltip,
@@ -428,6 +431,7 @@ import {
 import { getShortcutFromShortcutName } from "../actions/shortcuts";
 import { ImportedDataState } from "../data/types";
 import { actionTextAutoResize } from "../actions/actionTextAutoResize";
+import { getVisibleSceneBounds } from "../element/bounds";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -2621,7 +2625,7 @@ class App extends React.Component<AppProps, AppState> {
       addEventListener(document, EVENT.KEYUP, this.onKeyUp, { passive: true }),
       addEventListener(
         document,
-        EVENT.MOUSE_MOVE,
+        EVENT.POINTER_MOVE,
         this.updateCurrentCursorPosition,
       ),
       // rerender text elements on font load to fix #637 && #1553
@@ -3397,68 +3401,89 @@ class App extends React.Component<AppProps, AppState> {
       text,
       fontSize: this.state.currentItemFontSize,
       fontFamily: this.state.currentItemFontFamily,
-      textAlign: this.state.currentItemTextAlign,
+      textAlign: DEFAULT_TEXT_ALIGN,
       verticalAlign: DEFAULT_VERTICAL_ALIGN,
       locked: false,
     };
-
+    const fontString = getFontString({
+      fontSize: textElementProps.fontSize,
+      fontFamily: textElementProps.fontFamily,
+    });
     const lineHeight = getDefaultLineHeight(textElementProps.fontFamily);
+    const [x1, , x2] = getVisibleSceneBounds(this.state);
+    // long texts should not go beyond 800 pixels in width nor should it go below 200 px
+    const maxTextWidth = Math.max(Math.min((x2 - x1) * 0.5, 800), 200);
+    const LINE_GAP = 10;
+    let currentY = y;
 
-    const topLayerFrame = this.getTopLayerFrameAtSceneCoords({
-      x,
-      y,
-    });
+    const lines = isPlainPaste ? [text] : text.split("\n");
+    const textElements = lines.reduce(
+      (acc: ExcalidrawTextElement[], line, idx) => {
+        const originalText = line.trim();
+        if (originalText.length) {
+          const topLayerFrame = this.getTopLayerFrameAtSceneCoords({
+            x,
+            y: currentY,
+          });
 
-    let containerWidth = 300 * backgroundImageScaleValue;
-    const container = convertToExcalidrawElements([
-      {
-        type: "rectangle",
-        opacity: 100,
-        x,
-        y,
-        width: containerWidth,
-        strokeWidth: 0,
-        strokeColor: "transparent",
-        backgroundColor: "transparent",
-        frameId: topLayerFrame ? topLayerFrame.id : null,
+          let metrics = measureText(originalText, fontString, lineHeight);
+          const isTextWrapped = metrics.width > maxTextWidth;
+
+          const text = isTextWrapped
+            ? wrapText(originalText, fontString, maxTextWidth)
+            : originalText;
+
+          metrics = isTextWrapped
+            ? measureText(text, fontString, lineHeight)
+            : metrics;
+
+          const startX = x - metrics.width / 2;
+          const startY = currentY - metrics.height / 2;
+
+          const element = newTextElement({
+            ...textElementProps,
+            x: startX,
+            y: startY,
+            text,
+            originalText,
+            lineHeight,
+            autoResize: !isTextWrapped,
+            frameId: topLayerFrame ? topLayerFrame.id : null,
+          });
+          acc.push(element);
+          currentY += element.height + LINE_GAP;
+        } else {
+          const prevLine = lines[idx - 1]?.trim();
+          // add paragraph only if previous line was not empty, IOW don't add
+          // more than one empty line
+          if (prevLine) {
+            currentY +=
+              getLineHeightInPx(textElementProps.fontSize, lineHeight) +
+              LINE_GAP;
+          }
+        }
+
+        return acc;
       },
-    ])[0] as ExcalidrawTextContainer;
+      [],
+    );
 
-    this.scene.insertElement(container);
+    if (textElements.length === 0) {
+      return;
+    }
 
-    const element = newTextElement({
-      ...textElementProps,
-      x,
-      y,
-      text,
-      lineHeight,
-      frameId: topLayerFrame ? topLayerFrame.id : null,
-      containerId: container?.id,
-    });
+    this.scene.insertElements(textElements);
 
-    const total = element.width * element.height;
-    mutateElement(container, {
-      boundElements: (container.boundElements || []).concat({
-        type: "text",
-        id: element.id,
-      }),
-      width: containerWidth,
-      height: total / containerWidth,
-    });
-
-    mutateElement(element, {
-      width: containerWidth,
-      height: total / containerWidth,
-    });
-
-    this.scene.insertElement(element);
-
-    this.handleTextWysiwyg(element, {
-      isExistingElement: false,
+    this.setState({
+      selectedElementIds: makeNextSelectedElementIds(
+        Object.fromEntries(textElements.map((el) => [el.id, true])),
+        this.state,
+      ),
     });
 
     if (
       !isPlainPaste &&
+      textElements.length > 1 &&
       PLAIN_PASTE_TOAST_SHOWN === false &&
       !this.device.editor.isMobile
     ) {
@@ -3739,7 +3764,7 @@ class App extends React.Component<AppProps, AppState> {
       elements?: SceneData["elements"];
       appState?: Pick<AppState, K> | null;
       collaborators?: SceneData["collaborators"];
-      /** @default StoreAction.CAPTURE */
+      /** @default StoreAction.NONE */
       storeAction?: SceneData["storeAction"];
     }) => {
       const nextElements = syncInvalidIndices(sceneData.elements ?? []);
