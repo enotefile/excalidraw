@@ -2889,7 +2889,6 @@ class App extends React.Component<AppProps, AppState> {
       if (!this.state.isLoading) {
         this.props.onChange?.(elements, this.state, this.files);
         this.onChangeEmitter.trigger(elements, this.state, this.files);
-        console.log("onChangeEmitter.trigger");
       }
     },
     100,
