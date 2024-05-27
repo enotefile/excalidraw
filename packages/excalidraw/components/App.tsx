@@ -2705,182 +2705,193 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   componentDidUpdate(prevProps: AppProps, prevState: AppState) {
-    this.updateEmbeddables();
-    const elements = this.scene.getElementsIncludingDeleted();
-    const elementsMap = this.scene.getElementsMapIncludingDeleted();
-    const nonDeletedElementsMap = this.scene.getNonDeletedElementsMap();
-
-    if (!this.state.showWelcomeScreen && !elements.length) {
-      this.setState({ showWelcomeScreen: true });
-    }
-
-    if (
-      prevProps.UIOptions.dockedSidebarBreakpoint !==
-      this.props.UIOptions.dockedSidebarBreakpoint
-    ) {
-      this.refreshEditorBreakpoints();
-    }
-
-    const hasFollowedPersonLeft =
-      prevState.userToFollow &&
-      !this.state.collaborators.has(prevState.userToFollow.socketId);
-
-    if (hasFollowedPersonLeft) {
-      this.maybeUnfollowRemoteUser();
-    }
-
-    if (
-      prevState.zoom.value !== this.state.zoom.value ||
-      prevState.scrollX !== this.state.scrollX ||
-      prevState.scrollY !== this.state.scrollY
-    ) {
-      this.props?.onScrollChange?.(
-        this.state.scrollX,
-        this.state.scrollY,
-        this.state.zoom,
-      );
-      this.onScrollChangeEmitter.trigger(
-        this.state.scrollX,
-        this.state.scrollY,
-        this.state.zoom,
-      );
-    }
-
-    if (prevState.userToFollow !== this.state.userToFollow) {
-      if (prevState.userToFollow) {
-        this.onUserFollowEmitter.trigger({
-          userToFollow: prevState.userToFollow,
-          action: "UNFOLLOW",
-        });
-      }
-
-      if (this.state.userToFollow) {
-        this.onUserFollowEmitter.trigger({
-          userToFollow: this.state.userToFollow,
-          action: "FOLLOW",
-        });
-      }
-    }
-
-    if (
-      Object.keys(this.state.selectedElementIds).length &&
-      isEraserActive(this.state)
-    ) {
-      this.setState({
-        activeTool: updateActiveTool(this.state, { type: "selection" }),
-      });
-    }
-    if (
-      this.state.activeTool.type === "eraser" &&
-      prevState.theme !== this.state.theme
-    ) {
-      setEraserCursor(this.interactiveCanvas, this.state.theme);
-    }
-    // Hide hyperlink popup if shown when element type is not selection
-    if (
-      prevState.activeTool.type === "selection" &&
-      this.state.activeTool.type !== "selection" &&
-      this.state.showHyperlinkPopup
-    ) {
-      this.setState({ showHyperlinkPopup: false });
-    }
-    if (prevProps.langCode !== this.props.langCode) {
-      this.updateLanguage();
-    }
-
-    if (isEraserActive(prevState) && !isEraserActive(this.state)) {
-      this.eraserTrail.endPath();
-    }
-
-    if (prevProps.viewModeEnabled !== this.props.viewModeEnabled) {
-      this.setState({ viewModeEnabled: !!this.props.viewModeEnabled });
-    }
-
-    if (prevState.viewModeEnabled !== this.state.viewModeEnabled) {
-      this.addEventListeners();
-      this.deselectElements();
-    }
-
-    if (prevProps.zenModeEnabled !== this.props.zenModeEnabled) {
-      this.setState({ zenModeEnabled: !!this.props.zenModeEnabled });
-    }
-
-    if (prevProps.theme !== this.props.theme && this.props.theme) {
-      this.setState({ theme: this.props.theme });
-    }
-
-    if (prevProps.gridModeEnabled !== this.props.gridModeEnabled) {
-      this.setState({
-        gridSize: this.props.gridModeEnabled ? GRID_SIZE : null,
-      });
-    }
-
-    this.excalidrawContainerRef.current?.classList.toggle(
-      "theme--dark",
-      this.state.theme === THEME.DARK,
-    );
-
-    if (
-      this.state.editingLinearElement &&
-      !this.state.selectedElementIds[this.state.editingLinearElement.elementId]
-    ) {
-      // defer so that the storeAction flag isn't reset via current update
-      setTimeout(() => {
-        // execute only if the condition still holds when the deferred callback
-        // executes (it can be scheduled multiple times depending on how
-        // many times the component renders)
-        this.state.editingLinearElement &&
-          this.actionManager.executeAction(actionFinalize);
-      });
-    }
-
-    // failsafe in case the state is being updated in incorrect order resulting
-    // in the editingElement being now a deleted element
-    if (this.state.editingElement?.isDeleted) {
-      this.setState({ editingElement: null });
-    }
-
-    if (
-      this.state.selectedLinearElement &&
-      !this.state.selectedElementIds[this.state.selectedLinearElement.elementId]
-    ) {
-      // To make sure `selectedLinearElement` is in sync with `selectedElementIds`, however this shouldn't be needed once
-      // we have a single API to update `selectedElementIds`
-      this.setState({ selectedLinearElement: null });
-    }
-
-    const { multiElement } = prevState;
-    if (
-      prevState.activeTool !== this.state.activeTool &&
-      multiElement != null &&
-      isBindingEnabled(this.state) &&
-      isBindingElement(multiElement, false)
-    ) {
-      maybeBindLinearElement(
-        multiElement,
-        this.state,
-        tupleToCoors(
-          LinearElementEditor.getPointAtIndexGlobalCoordinates(
-            multiElement,
-            -1,
-            nonDeletedElementsMap,
-          ),
-        ),
-        this,
-      );
-    }
-
-    this.store.commit(elementsMap, this.state);
-
-    // Do not notify consumers if we're still loading the scene. Among other
-    // potential issues, this fixes a case where the tab isn't focused during
-    // init, which would trigger onChange with empty elements, which would then
-    // override whatever is in localStorage currently.
-    if (!this.state.isLoading) {
-      this.props.onChange?.(elements, this.state, this.files);
-      this.onChangeEmitter.trigger(elements, this.state, this.files);
-    }
+    this.componentDidUpdateChanged(prevProps, prevState);
   }
+
+  private componentDidUpdateChanged = debounce(
+    (prevProps: AppProps, prevState: AppState) => {
+      this.updateEmbeddables();
+      const elements = this.scene.getElementsIncludingDeleted();
+      const elementsMap = this.scene.getElementsMapIncludingDeleted();
+      const nonDeletedElementsMap = this.scene.getNonDeletedElementsMap();
+
+      if (!this.state.showWelcomeScreen && !elements.length) {
+        this.setState({ showWelcomeScreen: true });
+      }
+
+      if (
+        prevProps.UIOptions.dockedSidebarBreakpoint !==
+        this.props.UIOptions.dockedSidebarBreakpoint
+      ) {
+        this.refreshEditorBreakpoints();
+      }
+
+      // const hasFollowedPersonLeft =
+      //   prevState.userToFollow &&
+      //   !this.state.collaborators.has(prevState.userToFollow.socketId);
+
+      // if (hasFollowedPersonLeft) {
+      //   this.maybeUnfollowRemoteUser();
+      // }
+
+      if (
+        prevState.zoom.value !== this.state.zoom.value ||
+        prevState.scrollX !== this.state.scrollX ||
+        prevState.scrollY !== this.state.scrollY
+      ) {
+        this.props?.onScrollChange?.(
+          this.state.scrollX,
+          this.state.scrollY,
+          this.state.zoom,
+        );
+        this.onScrollChangeEmitter.trigger(
+          this.state.scrollX,
+          this.state.scrollY,
+          this.state.zoom,
+        );
+      }
+
+      // if (prevState.userToFollow !== this.state.userToFollow) {
+      //   if (prevState.userToFollow) {
+      //     this.onUserFollowEmitter.trigger({
+      //       userToFollow: prevState.userToFollow,
+      //       action: "UNFOLLOW",
+      //     });
+      //   }
+
+      //   if (this.state.userToFollow) {
+      //     this.onUserFollowEmitter.trigger({
+      //       userToFollow: this.state.userToFollow,
+      //       action: "FOLLOW",
+      //     });
+      //   }
+      // }
+
+      if (
+        Object.keys(this.state.selectedElementIds).length &&
+        isEraserActive(this.state)
+      ) {
+        this.setState({
+          activeTool: updateActiveTool(this.state, { type: "selection" }),
+        });
+      }
+      if (
+        this.state.activeTool.type === "eraser" &&
+        prevState.theme !== this.state.theme
+      ) {
+        setEraserCursor(this.interactiveCanvas, this.state.theme);
+      }
+      // Hide hyperlink popup if shown when element type is not selection
+      if (
+        prevState.activeTool.type === "selection" &&
+        this.state.activeTool.type !== "selection" &&
+        this.state.showHyperlinkPopup
+      ) {
+        this.setState({ showHyperlinkPopup: false });
+      }
+      if (prevProps.langCode !== this.props.langCode) {
+        this.updateLanguage();
+      }
+
+      if (isEraserActive(prevState) && !isEraserActive(this.state)) {
+        this.eraserTrail.endPath();
+      }
+
+      if (prevProps.viewModeEnabled !== this.props.viewModeEnabled) {
+        this.setState({ viewModeEnabled: !!this.props.viewModeEnabled });
+      }
+
+      if (prevState.viewModeEnabled !== this.state.viewModeEnabled) {
+        this.addEventListeners();
+        this.deselectElements();
+      }
+
+      if (prevProps.zenModeEnabled !== this.props.zenModeEnabled) {
+        this.setState({ zenModeEnabled: !!this.props.zenModeEnabled });
+      }
+
+      if (prevProps.theme !== this.props.theme && this.props.theme) {
+        this.setState({ theme: this.props.theme });
+      }
+
+      if (prevProps.gridModeEnabled !== this.props.gridModeEnabled) {
+        this.setState({
+          gridSize: this.props.gridModeEnabled ? GRID_SIZE : null,
+        });
+      }
+
+      this.excalidrawContainerRef.current?.classList.toggle(
+        "theme--dark",
+        this.state.theme === THEME.DARK,
+      );
+
+      if (
+        this.state.editingLinearElement &&
+        !this.state.selectedElementIds[
+          this.state.editingLinearElement.elementId
+        ]
+      ) {
+        // defer so that the storeAction flag isn't reset via current update
+        setTimeout(() => {
+          // execute only if the condition still holds when the deferred callback
+          // executes (it can be scheduled multiple times depending on how
+          // many times the component renders)
+          this.state.editingLinearElement &&
+            this.actionManager.executeAction(actionFinalize);
+        });
+      }
+
+      // failsafe in case the state is being updated in incorrect order resulting
+      // in the editingElement being now a deleted element
+      if (this.state.editingElement?.isDeleted) {
+        this.setState({ editingElement: null });
+      }
+
+      if (
+        this.state.selectedLinearElement &&
+        !this.state.selectedElementIds[
+          this.state.selectedLinearElement.elementId
+        ]
+      ) {
+        // To make sure `selectedLinearElement` is in sync with `selectedElementIds`, however this shouldn't be needed once
+        // we have a single API to update `selectedElementIds`
+        this.setState({ selectedLinearElement: null });
+      }
+
+      const { multiElement } = prevState;
+      if (
+        prevState.activeTool !== this.state.activeTool &&
+        multiElement != null &&
+        isBindingEnabled(this.state) &&
+        isBindingElement(multiElement, false)
+      ) {
+        maybeBindLinearElement(
+          multiElement,
+          this.state,
+          tupleToCoors(
+            LinearElementEditor.getPointAtIndexGlobalCoordinates(
+              multiElement,
+              -1,
+              nonDeletedElementsMap,
+            ),
+          ),
+          this,
+        );
+      }
+
+      this.store.commit(elementsMap, this.state);
+
+      // Do not notify consumers if we're still loading the scene. Among other
+      // potential issues, this fixes a case where the tab isn't focused during
+      // init, which would trigger onChange with empty elements, which would then
+      // override whatever is in localStorage currently.
+      if (!this.state.isLoading) {
+        this.props.onChange?.(elements, this.state, this.files);
+        this.onChangeEmitter.trigger(elements, this.state, this.files);
+      }
+    },
+    100,
+  );
 
   private renderInteractiveSceneCallback = ({
     atLeastOneVisibleElement,
