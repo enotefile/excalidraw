@@ -432,6 +432,7 @@ import { getShortcutFromShortcutName } from "../actions/shortcuts";
 import { ImportedDataState } from "../data/types";
 import { actionTextAutoResize } from "../actions/actionTextAutoResize";
 import { getVisibleSceneBounds } from "../element/bounds";
+import { debounce as _debounce } from "lodash";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -2708,7 +2709,7 @@ class App extends React.Component<AppProps, AppState> {
     this.componentDidUpdateChanged(prevProps, prevState);
   }
 
-  private componentDidUpdateChanged = debounce(
+  private componentDidUpdateChanged = _debounce(
     (prevProps: AppProps, prevState: AppState) => {
       this.updateEmbeddables();
       const elements = this.scene.getElementsIncludingDeleted();
@@ -2888,9 +2889,11 @@ class App extends React.Component<AppProps, AppState> {
       if (!this.state.isLoading) {
         this.props.onChange?.(elements, this.state, this.files);
         this.onChangeEmitter.trigger(elements, this.state, this.files);
+        console.log("onChangeEmitter.trigger");
       }
     },
     100,
+    { leading: true },
   );
 
   private renderInteractiveSceneCallback = ({
