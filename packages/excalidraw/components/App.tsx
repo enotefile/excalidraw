@@ -255,6 +255,7 @@ import type {
   EmbedsValidationStatus,
   ElementsPendingErasure,
   ExcalidrawInitialDataState,
+  Point,
 } from "../types";
 import {
   debounce,
@@ -433,6 +434,7 @@ import { ImportedDataState } from "../data/types";
 import { actionTextAutoResize } from "../actions/actionTextAutoResize";
 import { getVisibleSceneBounds } from "../element/bounds";
 import { debounce as _debounce } from "lodash";
+import paper from "paper";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -2887,12 +2889,43 @@ class App extends React.Component<AppProps, AppState> {
       // init, which would trigger onChange with empty elements, which would then
       // override whatever is in localStorage currently.
       if (!this.state.isLoading) {
+        paper.setup(new paper.Size(1, 1)); // creates a virtual canvas
+        paper.view.autoUpdate = false; // disables drawing any shape automatically
+
+        elements.forEach((element) => {
+          if (element.type === "freedraw" && !element.customData?.simplify) {
+            console.log("element.points", element.points);
+
+            const points: paper.Point[] = element.points.map(
+              (p) => new paper.Point(p[0], p[1]),
+            );
+
+            const path = new paper.Path();
+            points.forEach((point) => {
+              path.add(point);
+            });
+
+            path.simplify(0.1);
+
+            const newInputPoints: Point[] = [];
+            path.segments.forEach((segment) => {
+              newInputPoints.push([segment.point.x, segment.point.y]);
+            });
+
+            console.log("newInputPoints", newInputPoints);
+            mutateElement(element, {
+              points: newInputPoints,
+              customData: { simplify: true },
+            });
+          }
+        });
+
         this.props.onChange?.(elements, this.state, this.files);
         this.onChangeEmitter.trigger(elements, this.state, this.files);
       }
     },
-    100,
-    { leading: true },
+    300,
+    // { leading: true },
   );
 
   private renderInteractiveSceneCallback = ({
