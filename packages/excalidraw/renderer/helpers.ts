@@ -57,9 +57,6 @@ export const bootstrapCanvas = ({
   }
 
   // Paint background
-  const isFixedCanvasMode =
-    canvasSize.mode === "fixed" && fixedCanvasFrameElement && !isExporting;
-
   if (typeof viewBackgroundColor === "string") {
     const hasTransparence =
       viewBackgroundColor === "transparent" ||

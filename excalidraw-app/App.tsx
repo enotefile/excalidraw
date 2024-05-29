@@ -124,7 +124,7 @@ import { appThemeAtom, useHandleAppTheme } from "./useHandleAppTheme";
 
 polyfill();
 
-// window.EXCALIDRAW_THROTTLE_RENDER = true;
+window.EXCALIDRAW_THROTTLE_RENDER = true;
 
 const canvasWidth = 595 * backgroundImageScaleValue;
 const canvasHeight = 842 * backgroundImageScaleValue;
