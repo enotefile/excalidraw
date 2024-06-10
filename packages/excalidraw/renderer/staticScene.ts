@@ -30,6 +30,7 @@ import {
 import { bootstrapCanvas, getNormalizedCanvasDimensions } from "./helpers";
 import { throttleRAF } from "../utils";
 import { getBoundTextElement } from "../element/textElement";
+import renderElementWorker from "../worker/render-elements";
 
 const strokeGrid = (
   context: CanvasRenderingContext2D,
@@ -263,38 +264,96 @@ const _renderStaticScene = ({
           if (frame) {
             frameClip(frame, context, renderConfig, appState);
           }
-          renderElement(
-            element,
-            elementsMap,
-            allElementsMap,
-            rc,
-            context,
-            renderConfig,
-            appState,
-          );
+          console.log("renderElement 1");
+
+          if (window.Worker) {
+            const worker = new Worker(renderElementWorker);
+            const offscreenCanvas = document
+              .createElement("canvas")
+              .transferControlToOffscreen();
+            worker.postMessage(
+              {
+                msg: "init",
+                canvasElement: offscreenCanvas,
+                testObj: { a: 1, b: 2 },
+              },
+              [offscreenCanvas],
+            );
+
+            worker.onmessage = (event: MessageEvent) => {
+              if (event.data.msg === "init-finished") {
+              }
+            };
+          }
+
+          // renderElement(
+          //   element,
+          //   elementsMap,
+          //   allElementsMap,
+          //   rc,
+          //   context,
+          //   renderConfig,
+          //   appState,
+          // );
         } else {
-          renderElement(
-            element,
-            elementsMap,
-            allElementsMap,
-            rc,
-            context,
-            renderConfig,
-            appState,
-          );
+          console.log("renderElement 2");
+
+          if (window.Worker) {
+            const worker = new Worker(renderElementWorker);
+            const offscreenCanvas = document
+              .createElement("canvas")
+              .transferControlToOffscreen();
+            worker.postMessage(
+              { msg: "init", canvasElement: offscreenCanvas },
+              [offscreenCanvas],
+            );
+
+            worker.onmessage = (event: MessageEvent) => {
+              if (event.data.msg === "init-finished") {
+              }
+            };
+          }
+
+          // renderElement(
+          //   element,
+          //   elementsMap,
+          //   allElementsMap,
+          //   rc,
+          //   context,
+          //   renderConfig,
+          //   appState,
+          // );
         }
 
         const boundTextElement = getBoundTextElement(element, elementsMap);
         if (boundTextElement) {
-          renderElement(
-            boundTextElement,
-            elementsMap,
-            allElementsMap,
-            rc,
-            context,
-            renderConfig,
-            appState,
-          );
+          console.log("renderElement 3");
+
+          if (window.Worker) {
+            const worker = new Worker(renderElementWorker);
+            const offscreenCanvas = document
+              .createElement("canvas")
+              .transferControlToOffscreen();
+            worker.postMessage(
+              { msg: "init", canvasElement: offscreenCanvas },
+              [offscreenCanvas],
+            );
+
+            worker.onmessage = (event: MessageEvent) => {
+              if (event.data.msg === "init-finished") {
+              }
+            };
+          }
+
+          // renderElement(
+          //   boundTextElement,
+          //   elementsMap,
+          //   allElementsMap,
+          //   rc,
+          //   context,
+          //   renderConfig,
+          //   appState,
+          // );
         }
 
         context.restore();
@@ -313,15 +372,33 @@ const _renderStaticScene = ({
     .forEach((element) => {
       try {
         const render = () => {
-          renderElement(
-            element,
-            elementsMap,
-            allElementsMap,
-            rc,
-            context,
-            renderConfig,
-            appState,
-          );
+          console.log("renderElement 4");
+
+          if (window.Worker) {
+            const worker = new Worker(renderElementWorker);
+            const offscreenCanvas = document
+              .createElement("canvas")
+              .transferControlToOffscreen();
+            worker.postMessage(
+              { msg: "init", canvasElement: offscreenCanvas },
+              [offscreenCanvas],
+            );
+
+            worker.onmessage = (event: MessageEvent) => {
+              if (event.data.msg === "init-finished") {
+              }
+            };
+          }
+
+          // renderElement(
+          //   element,
+          //   elementsMap,
+          //   allElementsMap,
+          //   rc,
+          //   context,
+          //   renderConfig,
+          //   appState,
+          // );
 
           if (
             isIframeLikeElement(element) &&
@@ -333,15 +410,33 @@ const _renderStaticScene = ({
             element.height
           ) {
             const label = createPlaceholderEmbeddableLabel(element);
-            renderElement(
-              label,
-              elementsMap,
-              allElementsMap,
-              rc,
-              context,
-              renderConfig,
-              appState,
-            );
+            console.log("renderElement 5");
+
+            if (window.Worker) {
+              const worker = new Worker(renderElementWorker);
+              const offscreenCanvas = document
+                .createElement("canvas")
+                .transferControlToOffscreen();
+              worker.postMessage(
+                { msg: "init", canvasElement: offscreenCanvas },
+                [offscreenCanvas],
+              );
+
+              worker.onmessage = (event: MessageEvent) => {
+                if (event.data.msg === "init-finished") {
+                }
+              };
+            }
+
+            // renderElement(
+            //   label,
+            //   elementsMap,
+            //   allElementsMap,
+            //   rc,
+            //   context,
+            //   renderConfig,
+            //   appState,
+            // );
           }
           if (!isExporting) {
             renderLinkIcon(element, context, appState, elementsMap);

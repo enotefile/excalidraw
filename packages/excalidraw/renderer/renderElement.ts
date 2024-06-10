@@ -186,8 +186,8 @@ const generateElementCanvas = (
   zoom: Zoom,
   renderConfig: StaticCanvasRenderConfig,
   appState: StaticCanvasAppState,
+  canvas: HTMLCanvasElement,
 ): ExcalidrawElementWithCanvas => {
-  const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d")!;
   const padding = getCanvasPadding(element);
 
@@ -233,7 +233,7 @@ const generateElementCanvas = (
     context.filter = IMAGE_INVERT_FILTER;
   }
 
-  drawElementOnCanvas(element, rc, context, renderConfig, appState);
+  drawElementOnCanvas(element, rc, context, renderConfig);
   context.restore();
 
   return {
@@ -293,7 +293,6 @@ const drawElementOnCanvas = (
   rc: RoughCanvas,
   context: CanvasRenderingContext2D,
   renderConfig: StaticCanvasRenderConfig,
-  appState: StaticCanvasAppState,
 ) => {
   switch (element.type) {
     case "rectangle":
@@ -426,6 +425,7 @@ const generateElementWithCanvas = (
   elementsMap: RenderableElementsMap,
   renderConfig: StaticCanvasRenderConfig,
   appState: StaticCanvasAppState,
+  canvas: HTMLCanvasElement,
 ) => {
   const zoom: Zoom = renderConfig ? appState.zoom : defaultAppState.zoom;
   const prevElementWithCanvas = elementWithCanvasCache.get(element);
@@ -452,6 +452,7 @@ const generateElementWithCanvas = (
       zoom,
       renderConfig,
       appState,
+      canvas,
     );
 
     elementWithCanvasCache.set(element, elementWithCanvas);
@@ -647,6 +648,7 @@ export const renderElement = (
   context: CanvasRenderingContext2D,
   renderConfig: StaticCanvasRenderConfig,
   appState: StaticCanvasAppState,
+  canvas: HTMLCanvasElement,
 ) => {
   context.globalAlpha = getRenderOpacity(
     element,
@@ -709,14 +711,16 @@ export const renderElement = (
         context.translate(cx, cy);
         context.rotate(element.angle);
         context.translate(-shiftX, -shiftY);
-        drawElementOnCanvas(element, rc, context, renderConfig, appState);
+        drawElementOnCanvas(element, rc, context, renderConfig);
         context.restore();
       } else {
+        console.log("freedraw - generateElementWithCanvas");
         const elementWithCanvas = generateElementWithCanvas(
           element,
           elementsMap,
           renderConfig,
           appState,
+          canvas,
         );
         drawElementFromCanvas(
           elementWithCanvas,
@@ -798,13 +802,7 @@ export const renderElement = (
 
           tempCanvasContext.translate(-shiftX, -shiftY);
 
-          drawElementOnCanvas(
-            element,
-            tempRc,
-            tempCanvasContext,
-            renderConfig,
-            appState,
-          );
+          drawElementOnCanvas(element, tempRc, tempCanvasContext, renderConfig);
 
           tempCanvasContext.translate(shiftX, shiftY);
 
@@ -843,18 +841,21 @@ export const renderElement = (
           }
 
           context.translate(-shiftX, -shiftY);
-          drawElementOnCanvas(element, rc, context, renderConfig, appState);
+          drawElementOnCanvas(element, rc, context, renderConfig);
         }
 
         context.restore();
         // not exporting → optimized rendering (cache & render from element
         // canvases)
       } else {
+        console.log("other - generateElementWithCanvas");
+
         const elementWithCanvas = generateElementWithCanvas(
           element,
           elementsMap,
           renderConfig,
           appState,
+          canvas,
         );
 
         const currentImageSmoothingStatus = context.imageSmoothingEnabled;
