@@ -974,7 +974,6 @@ export const renderInteractiveSceneThrottled = throttleRAF(
     const ret = _renderInteractiveScene(config);
     config.callback?.(ret);
   },
-  { trailing: true },
 );
 
 /**
