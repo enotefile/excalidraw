@@ -380,6 +380,7 @@ export const renderStaticSceneThrottled = throttleRAF(
   (config: StaticSceneRenderConfig) => {
     _renderStaticScene(config);
   },
+  { trailing: true },
 );
 
 /**

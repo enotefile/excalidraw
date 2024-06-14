@@ -2893,7 +2893,7 @@ class App extends React.Component<AppProps, AppState> {
         this.onChangeEmitter.trigger(elements, this.state, this.files);
       }
     },
-    100,
+    50,
     { leading: true },
   );
 
