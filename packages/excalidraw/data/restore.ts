@@ -223,10 +223,7 @@ const restoreElement = (
       return element;
     case "freedraw": {
       return restoreElementWithProperties(element, {
-        points: element.points,
-        lastCommittedPoint: null,
-        simulatePressure: element.simulatePressure,
-        pressures: element.pressures,
+        points: element.points
       });
     }
     case "image":

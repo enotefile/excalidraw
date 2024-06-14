@@ -916,21 +916,17 @@ export function getFreeDrawPath2D(element: ExcalidrawFreeDrawElement) {
 
 export function getFreeDrawSvgPath(element: ExcalidrawFreeDrawElement) {
   // If input points are empty (should they ever be?) return a dot
-  const inputPoints = element.simulatePressure
-    ? element.points
-    : element.points.length
-    ? element.points.map(([x, y], i) => [x, y, element.pressures[i]])
+  const inputPoints = element.points.length
+    ? element.points.map(([x, y], i) => [x, y])
     : [[0, 0, 0.5]];
 
   // Consider changing the options for simulated pressure vs real pressure
   const options: StrokeOptions = {
-    simulatePressure: element.simulatePressure,
     size: element.strokeWidth * 4.25,
     thinning: 0.6,
     smoothing: 0.5,
     streamline: 0.5,
     easing: (t) => Math.sin((t * Math.PI) / 2), // https://easings.net/#easeOutSine
-    last: !!element.lastCommittedPoint, // LastCommittedPoint is added on pointerup
   };
 
   return getSvgPathFromStroke(getStroke(inputPoints as number[][], options));
