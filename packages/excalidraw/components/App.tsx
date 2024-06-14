@@ -2893,7 +2893,7 @@ class App extends React.Component<AppProps, AppState> {
         this.onChangeEmitter.trigger(elements, this.state, this.files);
       }
     },
-    100,
+    50,
     { leading: true },
   );
 
@@ -6837,7 +6837,6 @@ class App extends React.Component<AppProps, AppState> {
       roughness: this.state.currentItemRoughness,
       opacity: this.state.currentItemOpacity,
       roundness: null,
-      simulatePressure: event.pressure === 0.5,
       locked: false,
       frameId: topLayerFrame ? topLayerFrame.id : null,
     });
@@ -6855,13 +6854,8 @@ class App extends React.Component<AppProps, AppState> {
       };
     });
 
-    const pressures = element.simulatePressure
-      ? element.pressures
-      : [...element.pressures, event.pressure];
-
     mutateElement(element, {
-      points: [[0, 0]],
-      pressures,
+      points: [[0, 0]]
     });
 
     const boundElement = getHoveredElementForBinding(
@@ -7709,13 +7703,8 @@ class App extends React.Component<AppProps, AppState> {
           lastPoint && lastPoint[0] === dx && lastPoint[1] === dy;
 
         if (!discardPoint) {
-          const pressures = draggingElement.simulatePressure
-            ? draggingElement.pressures
-            : [...draggingElement.pressures, event.pressure];
-
           mutateElement(draggingElement, {
-            points: [...points, [dx, dy]],
-            pressures,
+            points: [...points, [dx, dy]]
           });
         }
       } else if (isLinearElement(draggingElement)) {
@@ -8042,14 +8031,9 @@ class App extends React.Component<AppProps, AppState> {
           dx += 0.0001;
         }
 
-        const pressures = draggingElement.simulatePressure
-          ? []
-          : [...draggingElement.pressures, childEvent.pressure];
 
         mutateElement(draggingElement, {
-          points: [...points, [dx, dy]],
-          pressures,
-          lastCommittedPoint: [dx, dy],
+          points: [...points, [dx, dy]]
         });
 
         this.actionManager.executeAction(actionFinalize);

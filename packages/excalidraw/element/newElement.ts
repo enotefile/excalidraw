@@ -373,15 +373,11 @@ export const newFreeDrawElement = (
   opts: {
     type: "freedraw";
     points?: ExcalidrawFreeDrawElement["points"];
-    simulatePressure: boolean;
   } & ElementConstructorOpts,
 ): NonDeleted<ExcalidrawFreeDrawElement> => {
   return {
     ..._newElementBase<ExcalidrawFreeDrawElement>(opts.type, opts),
-    points: opts.points || [],
-    pressures: [],
-    simulatePressure: opts.simulatePressure,
-    lastCommittedPoint: null,
+    points: opts.points || []
   };
 };
 

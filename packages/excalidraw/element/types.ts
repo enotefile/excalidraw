@@ -265,9 +265,6 @@ export type ExcalidrawFreeDrawElement = _ExcalidrawElementBase &
   Readonly<{
     type: "freedraw";
     points: readonly Point[];
-    pressures: readonly number[];
-    simulatePressure: boolean;
-    lastCommittedPoint: Point | null;
   }>;
 
 export type FileId = string & { _brand: "FileId" };

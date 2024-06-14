@@ -245,7 +245,6 @@ export class API {
       case "freedraw":
         element = newFreeDrawElement({
           type: type as "freedraw",
-          simulatePressure: true,
           ...base,
         });
         break;
