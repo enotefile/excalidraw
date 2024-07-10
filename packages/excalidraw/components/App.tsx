@@ -9445,6 +9445,10 @@ class App extends React.Component<AppProps, AppState> {
       return;
     }
 
+    if (this.state.viewModeEnabled) {
+      return;
+    }
+
     const { x, y } = viewportCoordsToSceneCoords(event, this.state);
     const element = this.getElementAtPosition(x, y, {
       preferSelected: true,
