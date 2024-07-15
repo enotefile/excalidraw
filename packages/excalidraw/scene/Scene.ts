@@ -33,6 +33,8 @@ type SceneStateCallbackRemover = () => void;
 
 type SelectionHash = string & { __brand: "selectionHash" };
 
+export const frameId = "CtfrFGQ6SOW14GOkSqQFq";
+
 const getNonDeletedElements = <T extends ExcalidrawElement>(
   allElements: readonly T[],
 ) => {
@@ -384,11 +386,20 @@ class Scene {
   };
 
   insertImageElement = (element: ExcalidrawElement) => {
-    const index = element.frameId
-      ? this.getElementIndex(element.frameId)
-      : this.elements.length;
+    let frameIndex = 0;
+    if (element.frameId) {
+      frameIndex = this.getElementIndex(element.frameId);
+    } else {
+      frameIndex = this.elements.findIndex((p) => p.id === frameId);
 
-    this.insertElementAtIndex(element, index - 1);
+      if (frameIndex === -1) {
+        frameIndex = this.elements.findIndex(
+          (p) => p.type === "frame" && p.locked === true,
+        );
+      }
+    }
+
+    this.insertElementAtIndex(element, frameIndex);
   };
 
   insertElements = (elements: ExcalidrawElement[]) => {
