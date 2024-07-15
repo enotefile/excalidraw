@@ -6855,7 +6855,7 @@ class App extends React.Component<AppProps, AppState> {
     });
 
     mutateElement(element, {
-      points: [[0, 0]]
+      points: [[0, 0]],
     });
 
     const boundElement = getHoveredElementForBinding(
@@ -7704,7 +7704,7 @@ class App extends React.Component<AppProps, AppState> {
 
         if (!discardPoint) {
           mutateElement(draggingElement, {
-            points: [...points, [dx, dy]]
+            points: [...points, [dx, dy]],
           });
         }
       } else if (isLinearElement(draggingElement)) {
@@ -8031,9 +8031,8 @@ class App extends React.Component<AppProps, AppState> {
           dx += 0.0001;
         }
 
-
         mutateElement(draggingElement, {
-          points: [...points, [dx, dy]]
+          points: [...points, [dx, dy]],
         });
 
         this.actionManager.executeAction(actionFinalize);
@@ -8876,7 +8875,7 @@ class App extends React.Component<AppProps, AppState> {
       return;
     }
 
-    this.scene.insertImageElement(imageElement);
+    this.scene.insertElement(imageElement);
 
     try {
       return await this.initializeImage({
