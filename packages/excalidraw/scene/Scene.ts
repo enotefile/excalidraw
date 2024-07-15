@@ -399,7 +399,7 @@ class Scene {
       }
     }
 
-    this.insertElementAtIndex(element, frameIndex);
+    this.insertElementAtIndex(element, frameIndex - 1);
   };
 
   insertElements = (elements: ExcalidrawElement[]) => {
