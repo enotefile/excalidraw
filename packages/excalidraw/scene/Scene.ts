@@ -388,6 +388,16 @@ class Scene {
     this.insertElementAtIndex(element, index);
   };
 
+  insertImageElement = (element: ExcalidrawElement) => {
+    const index = element.frameId
+      ? this.getElementIndex(element.frameId)
+      : this.elements.length > 2
+      ? 2
+      : 1;
+
+    this.insertElementAtIndex(element, index);
+  };
+
   insertElements = (elements: ExcalidrawElement[]) => {
     const index = elements[0].frameId
       ? this.getElementIndex(elements[0].frameId)

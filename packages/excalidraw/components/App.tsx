@@ -9034,7 +9034,7 @@ class App extends React.Component<AppProps, AppState> {
       return;
     }
 
-    this.scene.insertElement(imageElement);
+    this.scene.insertImageElement(imageElement);
 
     try {
       return await this.initializeImage({
