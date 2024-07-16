@@ -349,7 +349,11 @@ export interface AppState {
 
   fileHandle: FileSystemHandle | null;
   collaborators: Map<SocketId, Collaborator>;
-  showStats: boolean;
+  stats: {
+    open: boolean;
+    /** bitmap. Use `STATS_PANELS` bit values */
+    panels: number;
+  };
   currentChartType: ChartType;
   pasteDialog:
     | {
@@ -453,7 +457,9 @@ export interface ExcalidrawProps {
     appState: AppState,
     files: BinaryFiles,
   ) => void;
-  initialData?: MaybePromise<ExcalidrawInitialDataState | null>;
+  initialData?:
+    | (() => MaybePromise<ExcalidrawInitialDataState | null>)
+    | MaybePromise<ExcalidrawInitialDataState | null>;
   excalidrawAPI?: (api: ExcalidrawImperativeAPI) => void;
   isCollaborating?: boolean;
   onPointerUpdate?: (payload: {
@@ -607,6 +613,7 @@ export type AppClassProperties = {
   files: BinaryFiles;
   device: App["device"];
   scene: App["scene"];
+  syncActionResult: App["syncActionResult"];
   pasteFromClipboard: App["pasteFromClipboard"];
   id: App["id"];
   onInsertElements: App["onInsertElements"];
@@ -621,7 +628,6 @@ export type AppClassProperties = {
   setOpenDialog: App["setOpenDialog"];
   insertEmbeddableElement: App["insertEmbeddableElement"];
   onMagicframeToolSelect: App["onMagicframeToolSelect"];
-  getElementShape: App["getElementShape"];
   getName: App["getName"];
 };
 

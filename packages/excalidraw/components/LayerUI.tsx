@@ -39,8 +39,6 @@ import { JSONExportDialog } from "./JSONExportDialog";
 import { PenModeButton } from "./PenModeButton";
 import { trackEvent } from "../analytics";
 import { useDevice } from "./App";
-import { Stats } from "./Stats";
-import { actionToggleStats } from "../actions/actionToggleStats";
 import Footer from "./footer/Footer";
 import { isSidebarDockedAtom } from "./Sidebar/Sidebar";
 import { jotaiScope } from "../jotai";
@@ -63,6 +61,8 @@ import Scene from "../scene/Scene";
 import { LaserPointerButton } from "./LaserPointerButton";
 import { MagicSettings } from "./MagicSettings";
 import { TTDDialog } from "./TTDDialog/TTDDialog";
+import { Stats } from "./Stats";
+import { actionToggleStats } from "../actions";
 
 interface LayerUIProps {
   actionManager: ActionManager;
@@ -240,6 +240,11 @@ const LayerUI = ({
       elements,
     );
 
+    const shouldShowStats =
+      appState.stats.open &&
+      !appState.zenModeEnabled &&
+      !appState.viewModeEnabled;
+
     return (
       <FixedSideContainer side="top">
         <div className="App-menu App-menu_top">
@@ -354,6 +359,15 @@ const LayerUI = ({
                 appState.openSidebar?.name !== DEFAULT_SIDEBAR.name) && (
                 <tunnels.DefaultSidebarTriggerTunnel.Out />
               )}
+            {shouldShowStats && (
+              <Stats
+                scene={app.scene}
+                onClose={() => {
+                  actionManager.executeAction(actionToggleStats);
+                }}
+                renderCustomStats={renderCustomStats}
+              />
+            )}
           </div>
         </div>
       </FixedSideContainer>
@@ -543,17 +557,6 @@ const LayerUI = ({
               showExitZenModeBtn={showExitZenModeBtn}
               renderWelcomeScreen={renderWelcomeScreen}
             />
-            {appState.showStats && (
-              <Stats
-                appState={appState}
-                setAppState={setAppState}
-                elements={elements}
-                onClose={() => {
-                  actionManager.executeAction(actionToggleStats);
-                }}
-                renderCustomStats={renderCustomStats}
-              />
-            )}
             {appState.scrolledOutside && (
               <button
                 type="button"
